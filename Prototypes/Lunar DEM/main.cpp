@@ -21,8 +21,7 @@ main.cpp
 /* Include the header to the GLFW wrapper class which
 also includes the OpenGL extension initialisation*/
 #include "wrapper_glfw.h"
-#include <iostream>
-#include <stack>
+
 /* Include GLM core and matrix extensions*/
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
@@ -30,6 +29,11 @@ also includes the OpenGL extension initialisation*/
 
 // Include headers for our objects
 #include "shader.h"
+#include "DEM_terrain.h"
+
+//std lib includes
+#include <iostream>
+#include <stack>
 
 //Variable Declarations
 /* Position and view globals */
@@ -48,6 +52,7 @@ GLuint modelID, viewID, projectionID, normalmatrixID,
 
 /* Global instances of our objects */
 Shader aShader;
+DEM_terrain* LunarTerrain;
 
 using namespace std;
 using namespace glm;
@@ -65,17 +70,20 @@ void init(GLWrapper *glw)
 	model_scale = 1.f;
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
-
 	//light position values
 	lightx = 0.5;
 	lighty = 0.5;
 	lightz = 0.5;
 
-	/* Load shaders in to shader object */
+	//Create Lunar DEM
+	LunarTerrain = new DEM_terrain(512, 512, "empty", 2, 2);
+	LunarTerrain->generateTerrain();
+	LunarTerrain->createObject();
 
+	/* Load shaders in to shader object */
 	try
 	{
-		aShader.LoadShader("..\\..\\shaders\\Assign1.vert", "..\\..\\shaders\\Assign1.frag");
+		aShader.LoadShader("..\\..\\shaders\\Basic.vert", "..\\..\\shaders\\Basic.frag");
 	}
 	catch (exception &e)
 	{
@@ -88,8 +96,8 @@ void init(GLWrapper *glw)
 	modelID = glGetUniformLocation(aShader.ID, "model");
 	viewID = glGetUniformLocation(aShader.ID, "view");
 	projectionID = glGetUniformLocation(aShader.ID, "projection");
-	lightposID = glGetUniformLocation(aShader.ID, "lightpos");
-	normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
+	//lightposID = glGetUniformLocation(aShader.ID, "lightpos");
+	//normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -121,12 +129,12 @@ void display()
 	view = translate(view, vec3(move_x, move_y, move_z));
 
 	// Define the light position and transform by the view matrix - from lab example
-	vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
+	//vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
 
 	// Send our projection and view uniforms and light position to the shader
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
-	glUniform4fv(lightposID, 1, value_ptr(lightpos));
+	//glUniform4fv(lightposID, 1, value_ptr(lightpos));
 
 	// Define our model transformation in a stack and 
 	// push the identity matrix onto the stack
@@ -141,7 +149,13 @@ void display()
 	model.top() = rotate(model.top(), -radians(angle_x), vec3(1, 0, 0)); //rotating in clockwise direction around x-axis
 	model.top() = rotate(model.top(), -radians(angle_y), vec3(0, 1, 0)); //rotating in clockwise direction around y-axis
 	model.top() = rotate(model.top(), -radians(angle_z), vec3(0, 0, 1)); //rotating in clockwise direction around z-axis
+	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
 
+	//Draw terrain
+	LunarTerrain->drawTerrain();
+
+	glDisableVertexAttribArray(0);
+	glUseProgram(0);
 
 	/*
 	Example of draw call include these here.

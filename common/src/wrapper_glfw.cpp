@@ -81,6 +81,8 @@ void GLWrapper::DisplayVersion()
 	glGetIntegerv(GL_MAJOR_VERSION, &major);
 	glGetIntegerv(GL_MAJOR_VERSION, &minor);
 	cout << "OpenGL Version = " << major << "." << minor << endl;
+	cout << "Renderer:" << glGetString(GL_RENDERER) << endl;
+
 
 }
 

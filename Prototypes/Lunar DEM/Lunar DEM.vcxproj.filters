@@ -18,5 +18,33 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\src\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\src\wrapper_glfw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DEM_terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\shaders\Proto1.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Proto1.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Basic.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Basic.vert">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DEM_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

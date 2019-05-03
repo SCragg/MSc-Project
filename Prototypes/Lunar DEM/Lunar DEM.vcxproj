@@ -70,14 +70,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\include;..\..\common\header</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\include;..\..\common\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;..\..\lib\win32</LibraryPath>
-    <SourcePath>$(VC_SourcePath); ..\..\common</SourcePath>
+    <SourcePath>$(VC_SourcePath);..\..\common\src</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\include;..\..\common\header</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\include;..\..\common\include</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;..\..\lib\win32</LibraryPath>
-    <SourcePath>$(VC_SourcePath); ..\..\common</SourcePath>
+    <SourcePath>$(VC_SourcePath);..\..\common\src</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -124,7 +124,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\common\src\shader.cpp" />
+    <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
+    <ClCompile Include="DEM_terrain.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\shaders\Basic.frag" />
+    <None Include="..\..\shaders\Basic.vert" />
+    <None Include="..\..\shaders\Proto1.frag" />
+    <None Include="..\..\shaders\Proto1.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DEM_terrain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
