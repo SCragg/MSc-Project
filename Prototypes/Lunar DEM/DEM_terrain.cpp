@@ -79,7 +79,7 @@ void DEM_terrain::generateTerrain()
 			GLfloat zpos = zpos_start;
 			for (GLuint z = 0; z < Z_res; z++)
 			{
-				DEMfile >> height;
+				DEMfile.read((char*)(&height), sizeof(height)); // ARE THE VALUES CORRECT?
 				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
 				normals[x * X_res + z] = glm::vec3(0, 1, 0);
 				colours[x * X_res + z] = glm::vec4(0.5, 0.5, 0.5, 1);
