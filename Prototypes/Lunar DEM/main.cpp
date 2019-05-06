@@ -76,7 +76,7 @@ void init(GLWrapper *glw)
 	lightz = 0.5;
 
 	//Create Lunar DEM
-	LunarTerrain = new DEM_terrain(512, 512, "empty", 2, 2);
+	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 2, 2);
 	LunarTerrain->generateTerrain();
 	LunarTerrain->createObject();
 

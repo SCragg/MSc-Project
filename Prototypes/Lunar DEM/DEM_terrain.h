@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
+#include <fstream>
 #include <glm/glm.hpp>
 #include "wrapper_glfw.h"
 
@@ -24,8 +26,9 @@ private:
 	GLuint X_res, Z_res;
 	GLfloat X_size, Z_size;
 
+	//DEM file
 	std::string filepath;
-	GLfloat * heightfield;
+	std::ifstream DEMfile;
 
 	//Vertex Data
 	GLuint numvertices;
@@ -45,5 +48,6 @@ private:
 	GLuint attrib_v_colour;
 
 	//Functions
+	bool openFile();
 	void calculateNormals();
 };

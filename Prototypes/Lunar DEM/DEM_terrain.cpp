@@ -64,30 +64,43 @@ void DEM_terrain::generateTerrain()
 	GLfloat zpos_start = -Z_size / 2.f;
 	GLfloat zstep = Z_size / Z_res;
 
-	//Vertex positions for flat surface
-	for (GLuint x = 0; x < X_res; x++)
+	//Open file
+	if (!openFile())
 	{
-		GLfloat zpos = zpos_start;
-		for (GLuint z = 0; z < Z_res; z++)
-		{
-			vertices[x * X_res + z] = glm::vec4(xpos, 0, zpos, 1);
-			normals[x * X_res + z] = glm::vec3(0, 1, 0);
-			colours[x * X_res + z] = glm::vec4(0.5, 0.5, 0.5, 1);
-			zpos += zstep;
-		}
-		xpos += xstep;
+		std::cout << "Could not open DEM file at " << '\'' << filepath << "'. \n";
+		return;
 	}
-
-	/* Define vertices for triangle strips */
-	for (GLuint x = 0; x < X_res - 1; x++)
+	else
 	{
-		GLuint top = x * Z_res;
-		GLuint bottom = top + Z_res;
-		for (GLuint z = 0; z < Z_res; z++)
+		GLfloat height;
+		//Vertex positions for flat surface
+		for (GLuint x = 0; x < X_res; x++)
 		{
-			elements.push_back(top++);
-			elements.push_back(bottom++);
+			GLfloat zpos = zpos_start;
+			for (GLuint z = 0; z < Z_res; z++)
+			{
+				DEMfile >> height;
+				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
+				normals[x * X_res + z] = glm::vec3(0, 1, 0);
+				colours[x * X_res + z] = glm::vec4(0.5, 0.5, 0.5, 1);
+				zpos += zstep;
+			}
+			xpos += xstep;
 		}
+		DEMfile.close(); //close file stream
+
+		/* Define vertices for triangle strips */
+		for (GLuint x = 0; x < X_res - 1; x++)
+		{
+			GLuint top = x * Z_res;
+			GLuint bottom = top + Z_res;
+			for (GLuint z = 0; z < Z_res; z++)
+			{
+				elements.push_back(top++);
+				elements.push_back(bottom++);
+			}
+		}
+		return;
 	}
 }
 
@@ -148,6 +161,15 @@ void DEM_terrain::drawTerrain()
 void DEM_terrain::setColour()
 {
 
+}
+
+bool DEM_terrain::openFile()
+{
+	DEMfile.open(filepath, std::ios::binary);
+	if (DEMfile.is_open())
+		return true;
+	else
+		return false;
 }
 
 void DEM_terrain::calculateNormals()
