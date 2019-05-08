@@ -7,8 +7,7 @@
 // These are the vertex attributes
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
-layout(location = 2) in vec2 atexturecoord;
-layout(location = 3) in vec4 colour;
+layout(location = 2) in vec4 colour;
 
 // Uniform variables are passed in from the application
 uniform mat4 model, view, projection;
@@ -51,7 +50,6 @@ void main()
 	
 	//Define Outputs
 	fcolour = colour;
-	texturecoord = atexturecoord;
 	fragL = L;
 	fragN = N;
 	fragR = R;

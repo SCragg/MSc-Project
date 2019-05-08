@@ -67,7 +67,7 @@ void init(GLWrapper *glw)
 	angle_inc_x = angle_inc_y = angle_inc_z = 0;
 	move_x = move_y = move_z = 0;
 
-	model_scale = 1.f;
+	model_scale = .2f;
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
 	//light position values
@@ -76,14 +76,14 @@ void init(GLWrapper *glw)
 	lightz = 0.5;
 
 	//Create Lunar DEM
-	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 5, 5);
+	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024);
 	LunarTerrain->generateTerrain();
 	LunarTerrain->createObject();
 
 	/* Load shaders in to shader object */
 	try
 	{
-		aShader.LoadShader("..\\..\\shaders\\Basic.vert", "..\\..\\shaders\\Basic.frag");
+		aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
 	}
 	catch (exception &e)
 	{
@@ -96,8 +96,8 @@ void init(GLWrapper *glw)
 	modelID = glGetUniformLocation(aShader.ID, "model");
 	viewID = glGetUniformLocation(aShader.ID, "view");
 	projectionID = glGetUniformLocation(aShader.ID, "projection");
-	//lightposID = glGetUniformLocation(aShader.ID, "lightpos");
-	//normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
+	lightposID = glGetUniformLocation(aShader.ID, "lightpos");
+	normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -129,12 +129,12 @@ void display()
 	view = translate(view, vec3(move_x, move_y, move_z));
 
 	// Define the light position and transform by the view matrix - from lab example
-	//vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
+	vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
 
 	// Send our projection and view uniforms and light position to the shader
 	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 	glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
-	//glUniform4fv(lightposID, 1, value_ptr(lightpos));
+	glUniform4fv(lightposID, 1, value_ptr(lightpos));
 
 	// Define our model transformation in a stack and 
 	// push the identity matrix onto the stack
@@ -150,6 +150,8 @@ void display()
 	model.top() = rotate(model.top(), -radians(angle_y), vec3(0, 1, 0)); //rotating in clockwise direction around y-axis
 	model.top() = rotate(model.top(), -radians(angle_z), vec3(0, 0, 1)); //rotating in clockwise direction around z-axis
 	glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
+	normalmatrix = transpose(inverse(mat3(view * model.top())));
+	glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
 
 	//Draw terrain
 	LunarTerrain->drawTerrain();
@@ -212,8 +214,8 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'T' && action == GLFW_RELEASE) angle_inc_z = 0;
 	if (key == 'Y') angle_inc_z += 0.1f;
 	if (key == 'Y' && action == GLFW_RELEASE) angle_inc_z = 0;
-	if (key == 'A') model_scale -= 0.04f;
-	if (key == 'S') model_scale += 0.04f;
+	if (key == 'A') model_scale -= 0.004f;
+	if (key == 'S') model_scale += 0.004f;
 
 	//Moves camera along x, y, z axes
 	if (key == GLFW_KEY_UP) move_y -= 0.02;

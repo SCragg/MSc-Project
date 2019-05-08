@@ -72,6 +72,8 @@ void DEM_terrain::generateTerrain()
 	}
 	else
 	{
+		char* buffer = new char[4];
+		char* value = new char[4];
 		GLfloat height;
 		//Vertex positions for flat surface
 		for (GLuint x = 0; x < X_res; x++)
@@ -79,7 +81,15 @@ void DEM_terrain::generateTerrain()
 			GLfloat zpos = zpos_start;
 			for (GLuint z = 0; z < Z_res; z++)
 			{
-				DEMfile.read((char*)(&height), sizeof(height)); // ARE THE VALUES CORRECT?
+				//Decode binary integers
+				DEMfile.read(buffer, sizeof(value));
+				value[0] = buffer[3];
+				value[1] = buffer[2];
+				value[2] = buffer[1];
+				value[3] = buffer[0];
+				height = *(float*)value;
+
+				//Add to buffer
 				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
 				normals[x * X_res + z] = glm::vec3(0, 1, 0);
 				colours[x * X_res + z] = glm::vec4(0.5, 0.5, 0.5, 1);
@@ -87,6 +97,8 @@ void DEM_terrain::generateTerrain()
 			}
 			xpos += xstep;
 		}
+		delete buffer;
+		delete value;
 		DEMfile.close(); //close file stream
 
 		/* Define vertices for triangle strips */
@@ -100,6 +112,10 @@ void DEM_terrain::generateTerrain()
 				elements.push_back(bottom++);
 			}
 		}
+
+		// Calculate the normals by averaging cross products for all triangles 
+		calculateNormals();
+
 		return;
 	}
 }
@@ -148,7 +164,7 @@ void DEM_terrain::drawTerrain()
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
 	// Enable this line to show model in wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	/* Draw the triangle strips */
 	for (GLuint i = 0; i < X_res - 1; i++)
@@ -172,7 +188,47 @@ bool DEM_terrain::openFile()
 		return false;
 }
 
+/* Calculate normals by using cross products along the triangle strips
+   and averaging the normals for each vertex */
 void DEM_terrain::calculateNormals()
 {
+	GLuint element_pos = 0;
+	glm::vec3 AB, AC, cross_product;
 
+	// Loop through each triangle strip  
+	for (GLuint x = 0; x < X_res - 1; x++)
+	{
+		// Loop along the strip
+		for (GLuint tri = 0; tri < Z_res * 2 - 2; tri++)
+		{
+			// Extract the vertex indices from the element array 
+			GLuint v1 = elements[element_pos];
+			GLuint v2 = elements[element_pos + 1];
+			GLuint v3 = elements[element_pos + 2];
+
+			// Define the two vectors for the triangle
+			AB = vertices[v2] - vertices[v1];
+			AC = vertices[v3] - vertices[v1];
+
+			// Calculate the cross product
+			cross_product = normalize(cross(AC, AB));
+
+			// Add this normal to the vertex normal for all three vertices in the triangle
+			normals[v1] += cross_product;
+			normals[v2] += cross_product;
+			normals[v3] += cross_product;
+
+			// Move on to the next vertex along the strip
+			element_pos++;
+		}
+
+		// Jump past the last two element positions to reach the start of the strip
+		element_pos += 2;
+	}
+
+	// Normalise the normals (this gives us averaged, vertex normals)
+	for (GLuint v = 0; v < X_res * Z_res; v++)
+	{
+		normals[v] = normalize(normals[v]);
+	}
 }

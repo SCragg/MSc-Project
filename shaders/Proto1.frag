@@ -20,8 +20,6 @@ vec4 diffuse_col;
 int shininess;
 };
 
-uniform uint is_model_textured;
-uniform Material material;
 
 //Global variables
 int shininess = 8;
@@ -31,16 +29,7 @@ void main()
 
 	//Define lighting colours
 	vec4 specular_col = vec4(1.0f, 0.9f, 0.9f, 1.0f);
-	vec4 diffuse_col;
-	//Chooses whether to use diffuse texture or diffuse value colour defined in uniform
-	if (is_model_textured == 0)
-	{
-		diffuse_col = material.diffuse_col;	
-	}
-	else
-	{
-		diffuse_col =  texture(material.texture_diffuse1, texturecoord);
-	}
+	vec4 diffuse_col = fcolour;
 
 	//Renormalise inputs from Vertex shader
 	vec3 N = normalize(fragN);
@@ -53,19 +42,12 @@ void main()
 	//diffuse calculation
 	vec4 diffuse = (max(dot(N, L), 0)) * diffuse_col;
 	//specular calculation
-	float spec_val = pow(max(dot(R, V), 0.0), material.shininess);
+	float spec_val = pow(max(dot(R, V), 0.0), shininess);
 	vec3 specular;
-	//if the model is textured use specular map to change the level of specular intensity per fragment
-	if (is_model_textured == 0)
-	{
-		specular = specular_col.xyz * spec_val;
- 	}
-	else
-	{
-		specular = specular_col.xyz * spec_val * vec3(texture(material.texture_specular1, texturecoord));
-	}
+
+	specular = specular_col.xyz * spec_val;
 
 	//Outputs
-	outputColor = ambient + diffuse + vec4(specular, 1.0);
+	outputColor = ambient + diffuse + (vec4(specular, 1.0) * 0.3);
 
 }
