@@ -11,6 +11,7 @@ layout(location = 2) in vec4 colour;
 // Uniform variables are passed in from the application
 uniform mat4 model, view, projection;
 
+
 // Output the vertex colour - to be rasterized into pixel fragments
 out vec4 fcolour;
 

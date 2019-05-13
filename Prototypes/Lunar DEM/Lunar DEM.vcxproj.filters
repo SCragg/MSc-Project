@@ -27,6 +27,9 @@
     <ClCompile Include="DEM_terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\common\src\cube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Proto1.frag">
@@ -39,6 +42,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\..\shaders\Basic.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Hapke.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Hapke.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

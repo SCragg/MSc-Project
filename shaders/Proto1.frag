@@ -22,7 +22,7 @@ int shininess;
 
 
 //Global variables
-int shininess = 8;
+int shininess = 10;
 
 void main()
 {
