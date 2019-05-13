@@ -40,10 +40,10 @@ void main()
 	vec3 N = normalize(normal);
 	
 	//BRDF parameters for Hapke... are these meant to be calculated from normal or z-axis....?
-	fUo = (dot(L, normal)) / length(L); //cos i
-	fU = (dot(V, normal)) / 1; //cos e
+	fUo = (dot(-L, normal)) / length(-L); //cos i
+	fU = (dot(V, normal)); //cos e
 
-	fg = acos(dot(L.xy, V.xy) / length(L.xy)); //phase angle
+	fg = radians(acos(dot(-L.xy, V.xy) / length(-L.xy))); //phase angle
 
 	//Output colour
 	fcolour = colour;

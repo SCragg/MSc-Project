@@ -18,13 +18,13 @@ void main()
 {
 
 //Hapke parameters
-const float w = 0.33; //from pangu video...
+const float w = 0.33; //from pangu video
 const float Bo = 1.0; //estimate from paper
 float h = 0.4; //from paper looks like a guesstimate
-float e = acos(fU);
+float e = radians(acos(fU));
 
 //Average phase
-float pg = ((4 * PI) / 5 ) * ( (sin(fg) + (PI - fg) * cos(fg)) / PI) + (pow((1 - cos(fg)), 2) / 10);
+float pg = ((4 * PI) / 5 ) * ( (sin(degrees(fg)) + (PI - fg) * cos(degrees(fg))) / PI) + (pow((1 - cos(degrees(fg))), 2) / 10);
 //float pg = 1.0f;
 
 //Back scattering component
@@ -33,7 +33,7 @@ if (fg < 1)
 	Bg = Bo * (1 - 3 * fg / 2 * h);
 else if (fg <= PI/2)
 	{
-		Bg = Bo * (1 - (tan(fg) / (2 * h)) * (3 - pow(e, (-h/tan(fg)))) * (1 - pow(e, (-h/tan(fg)))));
+		Bg = Bo * (1 - (tan(degrees(fg)) / (2 * h)) * (3 - pow(e, (-h/tan(degrees(fg))))) * (1 - pow(e, (-h/tan(degrees(fg))))));
 	}
 else
 	Bg = 0;
