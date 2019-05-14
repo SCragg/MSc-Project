@@ -92,6 +92,7 @@ void init(GLWrapper *glw)
 	try
 	{
 		aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
+		//aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
 	}
 	catch (exception &e)
 	{
@@ -183,6 +184,7 @@ void display()
 		//Draw terrain
 		aShader.use();
 		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
+		normalmatrix = transpose(inverse(mat3(view * model.top())));
 		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
 		LunarTerrain->drawTerrain();
 	}

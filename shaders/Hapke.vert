@@ -16,9 +16,9 @@ uniform vec4 lightpos;
 
 // Output the vertex colour - to be rasterized into pixel fragments
 out vec4 fcolour;
-out float fU;
-out float fUo;
-out float fg;
+out vec3 fV;
+out vec3 fN;
+out vec3 fL;
 
 void main()
 {	
@@ -31,19 +31,11 @@ void main()
 
 	// Define light direction: L
 	vec4 transformed_lightpos = mv_matrix * lightpos;
-	vec3 L = lightpos.xyz - P.xyz;
 
-	//view direction
-	vec3 V = normalize(-P.xyz);
-
-	//normals
-	vec3 N = normalize(normal);
-	
-	//BRDF parameters for Hapke... are these meant to be calculated from normal or z-axis....?
-	fUo = (dot(-L, normal)) / length(-L); //cos i
-	fU = (dot(V, normal)); //cos e
-
-	fg = radians(acos(dot(-L.xy, V.xy) / length(-L.xy))); //phase angle
+	//Output vectors to vertex shader
+	fL = normalize(lightpos.xyz - P.xyz);
+	fV = normalize(-P.xyz);
+	fN = normalize((normal * normalmatrix));
 
 	//Output colour
 	fcolour = colour;
@@ -51,5 +43,9 @@ void main()
 	// Define the vertex position
 	gl_Position = projection * view * model * position;
 
+	//BRDF parameters for Hapke... are these meant to be calculated from normal or z-axis....?
+	//fUo = (dot(-L, normal)) / length(-L); //cos i
+	//fU = (dot(V, normal)); //cos e
 
+	//fg = radians(acos(dot(L.xy, V.xy) / length(L.xy))); //phase angle
 }
