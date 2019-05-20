@@ -12,20 +12,23 @@ in vec3 fL;
 
 out vec4 outputColor;
 
-float H(float u, float w);
+float Hapke_H(float u, float w);
+float Hapke_B (float absg, float h); 
 
 vec3 V = normalize(fV);
 vec3 N = normalize(fN);
 vec3 L = normalize(fL);
 
+
 //Angle parameters for Hapke brdf
 float Uo = dot(N, L); //cos i
 float U = dot(N, V); //cos e
 float g = acos(clamp(dot(L, V), -1.0, 1.0)); //phase angle
+float absg = abs(g);
 
 //Hapke parameters
-const float w = 0.33; //from pangu video
-const float Bo = 1.0; //estimate from paper
+const float w = 0.5; //from pangu video
+const float Bo = 0.1; //estimate from paper
 float h = 1; //from paper looks like a guesstimate
 float e = acos(U);
 
@@ -34,37 +37,43 @@ void main()
 
 //Average phase
 float pg = ((4 * PI) / 5 ) * ( (sin(g) + (PI - g) * cos(g)) / PI) + (pow((1 - cos(g)), 2) / 10);
-//float pg = 1.0f;
 
-//Back scattering component
-float Bg;
-if (g < 1)
-	Bg = Bo * (1 - 3 * g / 2 * h);
-else if (g <= PI/2)
-	{
-		Bg = Bo * (1 - (tan(g) / (2 * h)) * (3 - pow(e, (-h/tan(g)))) * (1 - pow(e, (-h/tan(g)))));
-	}
-else
-	Bg = 0;
-
-
+float Hapke = 0.0;
+if (U > 0.0 && Uo > 0.0)
+{
 //first part: w/4pi
 float first = w / (4 * PI);
 //second part: Uo/(Uo+U)
-float second = U / (Uo + U);
+float second = Uo / (Uo + U);
+//float second = 1;
 //third part: {[i + B(g)]P(g) + H(Uo)H(u) -1)
-float third = (1 + Bg) * pg + H(Uo, w) * H(U, w) - 1;
+float third = (1 + Hapke_B(absg, h)) * pg + Hapke_H(Uo, w) * Hapke_H(U, w) - 1;
 
-float BRDF = first * second * third;
-
+Hapke = first * second * third;
+}
 //Outputs
-outputColor = fcolour * BRDF;
+float lambert = max(0.0,Uo);
+outputColor = fcolour * mix(lambert, Hapke, 0.9);
 
 }
 
-float H(float u, float w)
+float Hapke_H(float u, float w)
 {
 	float top = 1 + 2 * u;
-	float bottom = 1 + 2 * pow((1 - 2), (1/2)) * u;
+	float bottom = 1 + 2 * pow((1 - w), (1/2)) * u;
 	return top/bottom;
+}
+
+//Backscatter function
+float Hapke_B (float absg, float h)
+{
+if (absg < 1)
+	return Bo * (1 - 3 * absg / 2 * h);
+
+else if (absg <= PI/2)
+	return Bo * (1 - (tan(absg) / (2 * h)) * (3 - pow(e, (-h/tan(absg)))) * (1 - pow(e, (-h/tan(absg)))));
+	//return Bo * (1 - (tan(absg) / (2 * h)) * (3 - exp(-h/tan(absg))) * (1 - exp(-h/tan(absg))));
+
+else
+	return 0;
 }

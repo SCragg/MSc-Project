@@ -30,12 +30,12 @@ void main()
 	vec4 P = mv_matrix * position;
 
 	// Define light direction: L
-	vec4 transformed_lightpos = mv_matrix * lightpos;
+	//vec4 transformed_lightpos = mv_matrix * lightpos;
 
 	//Output vectors to vertex shader
 	fL = normalize(lightpos.xyz - P.xyz);
 	fV = normalize(-P.xyz);
-	fN = normalize((normal * normalmatrix));
+	fN = normalize((normalmatrix * normal));
 
 	//Output colour
 	fcolour = colour;
