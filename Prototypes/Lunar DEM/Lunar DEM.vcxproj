@@ -139,6 +139,9 @@
     <None Include="..\..\shaders\Hapke.vert" />
     <None Include="..\..\shaders\Proto1.frag" />
     <None Include="..\..\shaders\Proto1.vert" />
+    <None Include="..\..\shaders\show_normals.frag" />
+    <None Include="..\..\shaders\show_normals.geom" />
+    <None Include="..\..\shaders\show_normals.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h" />

@@ -91,8 +91,8 @@ void DEM_terrain::generateTerrain()
 
 				//Add to buffer
 				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
-				normals[x * X_res + z] = glm::vec3(0, 1, 0);
-				colours[x * X_res + z] = glm::vec4(0.5, 0.5, 0.5, 1);
+				normals[x * X_res + z] = glm::vec3(0, 0, 0);
+				colours[x * X_res + z] = glm::vec4(0.65, 0.65, 0.65, 1);
 				zpos += zstep;
 			}
 			xpos += xstep;
@@ -120,7 +120,7 @@ void DEM_terrain::generateTerrain()
 	}
 }
 
-void DEM_terrain::drawTerrain()
+void DEM_terrain::drawTerrain(int drawmode)
 {
 	int size;	// Used to get the byte size of the element (vertex index) array
 	glBindVertexArray(vao);
@@ -164,13 +164,29 @@ void DEM_terrain::drawTerrain()
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
 	// Enable this line to show model in wireframe
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-	/* Draw the triangle strips */
-	for (GLuint i = 0; i < X_res - 1; i++)
+	if (drawmode == 0)
 	{
-		GLuint location = sizeof(GLuint) * (i * Z_res * 2);
-		glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		/* Draw the triangle strips */
+		for (GLuint i = 0; i < X_res - 1; i++)
+		{
+			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
+			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
+		}
+	}
+	else if (drawmode == 1)
+	{
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		//glDrawArrays(GL_POINTS, 0, numvertices);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		/* Draw the triangle strips */
+		for (GLuint i = 0; i < X_res - 1; i++)
+		{
+			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
+			glDrawElements(GL_POINTS, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
+		}
 	}
 }
 

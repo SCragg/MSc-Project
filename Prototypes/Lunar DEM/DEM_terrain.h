@@ -17,7 +17,7 @@ public:
 
 	void createObject();
 	void generateTerrain();
-	void drawTerrain();
+	void drawTerrain(int drawmode);
 	void setColour();
 
 private:
