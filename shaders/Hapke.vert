@@ -22,7 +22,6 @@ out vec3 fL;
 
 void main()
 {	
-
 	//Define Model-View matrix
 	mat4 mv_matrix = view * model;
 
@@ -42,10 +41,4 @@ void main()
 	
 	// Define the vertex position
 	gl_Position = projection * view * model * position;
-
-	//BRDF parameters for Hapke... are these meant to be calculated from normal or z-axis....?
-	//fUo = (dot(-L, normal)) / length(-L); //cos i
-	//fU = (dot(V, normal)); //cos e
-
-	//fg = radians(acos(dot(L.xy, V.xy) / length(L.xy))); //phase angle
 }

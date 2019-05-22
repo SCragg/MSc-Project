@@ -58,6 +58,10 @@ Shader aShader, normalShader, cubeShader;
 DEM_terrain* LunarTerrain;
 Cube aCube;
 
+//Flags
+GLboolean shownormals;
+GLuint drawmode;
+
 using namespace std;
 using namespace glm;
 
@@ -81,6 +85,10 @@ void init(GLWrapper *glw)
 	lighty = 15;
 	lightz = 0.5;
 
+	//initial flag values
+	shownormals = false;
+	drawmode = 0;
+
 	//Create Lunar DEM
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
 	LunarTerrain->generateTerrain();
@@ -92,8 +100,8 @@ void init(GLWrapper *glw)
 	/* Load shaders in to shader object */
 	try
 	{
-		//aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
-		aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
+		aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
+		//aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
 	}
 	catch (exception &e)
 	{
@@ -207,11 +215,14 @@ void display()
 		aShader.use();
 		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
 		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
-		LunarTerrain->drawTerrain(0);
+		LunarTerrain->drawTerrain(drawmode);
 
-		normalShader.use();
-		glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
-		LunarTerrain->drawTerrain(1);
+		if (shownormals)
+		{
+			normalShader.use();
+			glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
+			LunarTerrain->drawTerrain(2);
+		}
 
 	}
 	model.pop();
@@ -307,6 +318,20 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'L') lighty -= 1.0f;
 	if (key == 'N')	lightz += 1.0f;
 	if (key == 'M') lightz -= 1.0f;
+
+	//Shows/hides normal
+	if (key == 'V' && action == GLFW_PRESS)
+	{
+		if (shownormals == false) shownormals = true;
+		else shownormals = false;
+	}
+
+	//Change drawmode
+	if (key == 'B' && action == GLFW_PRESS)
+	{
+		if (drawmode < 2) drawmode++;
+		else drawmode = 0;
+	}
 }
 
 

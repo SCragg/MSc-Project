@@ -129,7 +129,7 @@ void DEM_terrain::drawTerrain(int drawmode)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_position);
 	glVertexAttribPointer(
 		attrib_v_coord,  // attribute index
-		4,                  // number of elements per vertex, here (x,y,z)
+		4,                  // number of elements per vertex, here (x,y,z,g)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
 		0,                  // no extra data between each position
@@ -141,7 +141,7 @@ void DEM_terrain::drawTerrain(int drawmode)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_colour);
 	glVertexAttribPointer(
 		attrib_v_colour,  // attribute index
-		4,                  // number of elements per vertex, here (x,y,z)
+		4,                  // number of elements per vertex, here (x,y,z,g)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
 		0,                  // no extra data between each position
@@ -168,7 +168,7 @@ void DEM_terrain::drawTerrain(int drawmode)
 
 	if (drawmode == 0)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		/* Draw the triangle strips */
 		for (GLuint i = 0; i < X_res - 1; i++)
 		{
@@ -178,10 +178,23 @@ void DEM_terrain::drawTerrain(int drawmode)
 	}
 	else if (drawmode == 1)
 	{
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		/* Draw the triangle strips */
+		for (GLuint i = 0; i < X_res - 1; i++)
+		{
+			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
+			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
+		}
+	}
+	else if (drawmode == 2)
+	{	/*
+		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 		//glDrawArrays(GL_POINTS, 0, numvertices);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		/* Draw the triangle strips */
+		*/
+		/* 
+		Draw the triangle strips - Less efficient to draw as triangle strips but wanted to rule out element order
+		*/
 		for (GLuint i = 0; i < X_res - 1; i++)
 		{
 			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
@@ -222,12 +235,19 @@ void DEM_terrain::calculateNormals()
 			GLuint v2 = elements[element_pos + 1];
 			GLuint v3 = elements[element_pos + 2];
 
-			// Define the two vectors for the triangle
-			AB = vertices[v2] - vertices[v1];
-			AC = vertices[v3] - vertices[v1];
+			// Vertex positions
+			glm::vec3 pos1(vertices[v1]);
+			glm::vec3 pos2(vertices[v2]);
+			glm::vec3 pos3(vertices[v3]);
 
-			// Calculate the cross product
-			cross_product = normalize(cross(AC, AB));
+			// Define the two vectors for the triangle
+			AB = pos2 - pos1;
+			AC = pos3 - pos1;
+
+			// Calculate the cross product - ensures correct cross product taken each time
+			if (tri % 2 == 0) cross_product = glm::normalize(glm::cross(AC, AB));
+			else cross_product = glm::normalize(glm::cross(AB, AC));
+			
 
 			// Add this normal to the vertex normal for all three vertices in the triangle
 			normals[v1] += cross_product;
@@ -243,8 +263,8 @@ void DEM_terrain::calculateNormals()
 	}
 
 	// Normalise the normals (this gives us averaged, vertex normals)
-	for (GLuint v = 0; v < X_res * Z_res; v++)
+	for (GLuint v = 0; v < numvertices; v++)
 	{
-		normals[v] = normalize(normals[v]);
+		normals[v] = glm::normalize(normals[v]);
 	}
 }

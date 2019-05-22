@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_SWIZZLE
+
 #include <string>
 #include <vector>
 #include <iostream>

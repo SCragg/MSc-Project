@@ -27,9 +27,9 @@ float g = acos(clamp(dot(L, V), -1.0, 1.0)); //phase angle
 float absg = abs(g);
 
 //Hapke parameters
-const float w = 0.5; //from pangu video
-const float Bo = 0.1; //estimate from paper
-float h = 1; //from paper looks like a guesstimate
+const float w = 0.33; //from pangu video
+const float Bo = 0.95; //estimate from paper
+float h = 0.05; //from paper looks like a guesstimate
 float e = acos(U);
 
 void main()
@@ -53,7 +53,7 @@ Hapke = first * second * third;
 }
 //Outputs
 float lambert = max(0.0,Uo);
-outputColor = fcolour * mix(lambert, Hapke, 0.9);
+outputColor = fcolour * mix(lambert, Hapke, 1);
 
 }
 
