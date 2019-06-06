@@ -20,7 +20,7 @@ layout (std140) uniform Matrices
 
 							//total size = 240 bytes
 };
-uniform vec4 lightpos;
+uniform vec4 lightdir;
 
 // Output the vertex colour - to be rasterized into pixel fragments
 out vec4 fcolour;
@@ -37,10 +37,10 @@ void main()
 	vec4 P = mv_matrix * position;
 
 	// Define light direction: L
-	//vec4 transformed_lightpos = mv_matrix * lightpos;
+	vec3 transformed_lightdir = normalmatrix * lightdir.xyz;
 
 	//Output vectors to vertex shader
-	fL = normalize(lightpos.xyz - P.xyz);
+	fL = normalize(transformed_lightdir.xyz);
 	fV = normalize(-P.xyz);
 	fN = normalize((normalmatrix * normal));
 

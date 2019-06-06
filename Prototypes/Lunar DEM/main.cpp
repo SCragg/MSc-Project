@@ -41,10 +41,10 @@ also includes the OpenGL extension initialisation*/
 GLfloat angle_x, angle_inc_x, model_scale; //from lab example
 GLfloat angle_y, angle_inc_y, angle_z, angle_inc_z; //from lab example
 GLfloat move_x, move_y, move_z;
-
-//View Globals
 GLfloat aspect_ratio;		// Aspect ratio of the window defined in the reshape callback
-GLfloat lightx, lighty, lightz;
+
+//Light rotation
+GLfloat HourAngle; //Angle of light direction, specified in degrees
 
 /* Uniforms*/
 GLuint ubo_Matrices; //UBO for view, projection, model and normal transformation matrices
@@ -55,8 +55,8 @@ const GLint offset_view = 64;
 const GLint offset_model = 128;
 const GLint offset_normalmatrix = 192;
 
-GLuint lightposID;
-GLuint lamb_lightposID;
+GLuint lightdirID;
+GLuint lamb_lightdirID;
 
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
@@ -87,10 +87,8 @@ void init(GLWrapper *glw)
 	model_scale = .2f;
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
-	//light position values
-	lightx = 0.5;
-	lighty = 15;
-	lightz = 0.5;
+	//hour angle
+	HourAngle = 0;
 
 	//initial flag values
 	shownormals = false;
@@ -173,8 +171,8 @@ void init(GLWrapper *glw)
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_Matrices);
 
 	/* Define light position uniforms */
-	lightposID = glGetUniformLocation(terrainShaders[0].ID, "lightpos");
-	lamb_lightposID = glGetUniformLocation(terrainShaders[1].ID, "lightpos");
+	lightdirID = glGetUniformLocation(terrainShaders[0].ID, "lightdir");
+	lamb_lightdirID = glGetUniformLocation(terrainShaders[1].ID, "lightdir");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -202,19 +200,19 @@ void display()
 
 	view = translate(view, vec3(move_x, move_y, move_z));
 
-	// Define the light position and transform by the view matrix - from lab example
-	vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
+	// Define light direction using hour angle
+	vec4 lightdirection = rotate(mat4(1.0f), radians(HourAngle), vec3(0, 0, 1)) * vec4(0, 1, 0, 1);
 
 	// Send our projection and view uniforms and light position to the shader
 	if (terrainshader == 0)
 	{
 		terrainShaders[0].use();
-		glUniform4fv(lightposID, 1, value_ptr(lightpos));
+		glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
 	}
 	else if (terrainshader == 1)
 	{
 		terrainShaders[1].use();
-		glUniform4fv(lamb_lightposID, 1, value_ptr(lightpos));
+		glUniform4fv(lamb_lightdirID, 1, value_ptr(lightdirection));
 	}
 
 	//Update matrix UBO with projection and view matrices
@@ -265,6 +263,7 @@ void display()
 	}
 	model.pop();
 
+	/*
 	model.push(model.top());
 	{
 		model.top() = translate(model.top(), vec3(lightx, lighty, lightz));
@@ -281,7 +280,7 @@ void display()
 		aCube.drawCube(cubeShader);
 	}
 	model.pop();
-
+	*/
 
 	glDisableVertexAttribArray(0);
 	glUseProgram(0);
@@ -335,6 +334,22 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == GLFW_KEY_RIGHT_SHIFT) move_z -= 1.0;
 	if (key == GLFW_KEY_RIGHT_CONTROL) move_z += 1.0;
 
+	//Change hour angle
+	if (key == 'O')
+	{
+		if (HourAngle < 359) HourAngle++;
+		else HourAngle = 0;
+		cout << "Hour angle: " << HourAngle << " degrees. \n";
+	}
+
+	if (key == 'P')
+	{
+		if (HourAngle > 0) HourAngle--;
+		else HourAngle = 359;
+		cout << "Hour angle: " << HourAngle << " degrees. \n";
+	}
+
+	/*
 	//Move light position
 	//if (action != GLFW_PRESS) return;
 	if (key == 'O') lightx += 1.0f;
@@ -343,6 +358,7 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'L') lighty -= 1.0f;
 	if (key == 'N')	lightz += 1.0f;
 	if (key == 'M') lightz -= 1.0f;
+	*/
 
 	//Shows/hides normal
 	if (key == 'V' && action == GLFW_PRESS)
