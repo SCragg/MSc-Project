@@ -244,7 +244,7 @@ void display()
 		//Update UBO with model and mormal matrices
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
-		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(mat3), value_ptr(normalmatrix));
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(vec4)*3, value_ptr(mat4(normalmatrix)));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		if (terrainshader == 0)
 		{
