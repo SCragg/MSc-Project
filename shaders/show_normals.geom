@@ -6,7 +6,16 @@
 layout(points) in;
 layout(line_strip, max_vertices = 2) out;
 
-uniform mat4 model, view, projection; // Model View Projection Matrix
+layout (std140) uniform Matrices
+{
+							//base align	//aligned offset
+	mat4 projection;		//16 * 4		//0
+	mat4 view;				//16 * 4		//64
+	mat4 model;				//16 * 4		//128
+	mat3 normalmatrix;		//16 * 3		//192
+
+							//total size = 240 bytes
+};
 
 vec3 colour = vec3(1.0, 1.0, 0.0);
 float length = 3;

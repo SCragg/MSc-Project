@@ -47,10 +47,16 @@ GLfloat aspect_ratio;		// Aspect ratio of the window defined in the reshape call
 GLfloat lightx, lighty, lightz;
 
 /* Uniforms*/
-GLuint modelID, viewID, projectionID, normalmatrixID, lightposID;
-GLuint lamb_modelID, lamb_viewID, lamb_projectionID, lamb_normalmatrixID, lamb_lightposID;
-GLuint basicmodelID, basicviewID, basicprojectionID;
-GLuint normalmodelID, normalviewID, normalprojectionID;
+GLuint ubo_Matrices; //UBO for view, projection, model and normal transformation matrices
+
+//Offsets for ubo
+const GLint offset_projection = 0;
+const GLint offset_view = 64;
+const GLint offset_model = 128;
+const GLint offset_normalmatrix = 192;
+
+GLuint lightposID;
+GLuint lamb_lightposID;
 
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
@@ -102,7 +108,7 @@ void init(GLWrapper *glw)
 	/* Load terrain shaders in to shader vector */
 	try
 	{
-		terrainShaders.push_back();
+		terrainShaders.push_back(Shader());
 		terrainShaders[0].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
 	}
 	catch (exception &e)
@@ -114,7 +120,7 @@ void init(GLWrapper *glw)
 
 	try
 	{
-		terrainShaders.push_back();
+		terrainShaders.push_back(Shader());
 		terrainShaders[1].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Lambert.frag");
 	}
 	catch (exception &e)
@@ -124,6 +130,7 @@ void init(GLWrapper *glw)
 		exit(0);
 	}
 
+	//Load other shaders
 	try
 	{
 		normalShader.LoadShader("..\\..\\shaders\\show_normals.vert", "..\\..\\shaders\\show_normals.frag", "..\\..\\shaders\\show_normals.geom");
@@ -146,29 +153,28 @@ void init(GLWrapper *glw)
 		exit(0);
 	}
 
-	/* Define uniforms to send to vertex shader */
-	modelID = glGetUniformLocation(hapkeShader.ID, "model");
-	viewID = glGetUniformLocation(hapkeShader.ID, "view");
-	projectionID = glGetUniformLocation(hapkeShader.ID, "projection");
-	lightposID = glGetUniformLocation(hapkeShader.ID, "lightpos");
-	normalmatrixID = glGetUniformLocation(hapkeShader.ID, "normalmatrix");
+	//Uniform buffer setup
+	//get uniform block index for shaders
+	GLuint uniBlock_MatHapke = glGetUniformBlockIndex(terrainShaders[0].ID, "Matrices");
+	GLuint uniBlock_MatLambert = glGetUniformBlockIndex(terrainShaders[1].ID, "Matrices");
+	GLuint uniBlock_MatNormals = glGetUniformBlockIndex(normalShader.ID, "Matrices");
+	GLuint uniBlock_MatCube = glGetUniformBlockIndex(cubeShader.ID, "Matrices");
+	//then link shaders uniform block to binding point, 0 for this
+	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatHapke, 0);
+	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatLambert, 0);
+	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatNormals, 0);
+	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatCube, 0);
+	//Create matrices uniform buffer object
+	glGenBuffers(1, &ubo_Matrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+	glBufferData(GL_UNIFORM_BUFFER, 240, NULL, GL_DYNAMIC_DRAW); //Buffer size of 240 bytes
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//bind buffer to binding point
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_Matrices);
 
-	/* Define uniforms to send to vertex shader */
-	lamb_modelID = glGetUniformLocation(lambertShader.ID, "model");
-	lamb_viewID = glGetUniformLocation(lambertShader.ID, "view");
-	lamb_projectionID = glGetUniformLocation(lambertShader.ID, "projection");
-	lamb_lightposID = glGetUniformLocation(lambertShader.ID, "lightpos");
-	lamb_normalmatrixID = glGetUniformLocation(lambertShader.ID, "normalmatrix");
-
-	//uniforms for normal shader
-	normalmodelID = glGetUniformLocation(normalShader.ID, "model");
-	normalviewID = glGetUniformLocation(normalShader.ID, "view");
-	normalprojectionID = glGetUniformLocation(normalShader.ID, "projection");
-
-	//uniforms for lightcube shader
-	basicmodelID = glGetUniformLocation(cubeShader.ID, "model");
-	basicviewID = glGetUniformLocation(cubeShader.ID, "view");
-	basicprojectionID = glGetUniformLocation(cubeShader.ID, "projection");
+	/* Define light position uniforms */
+	lightposID = glGetUniformLocation(terrainShaders[0].ID, "lightpos");
+	lamb_lightposID = glGetUniformLocation(terrainShaders[1].ID, "lightpos");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -202,28 +208,20 @@ void display()
 	// Send our projection and view uniforms and light position to the shader
 	if (terrainshader == 0)
 	{
-		hapkeShader.use();
-		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
+		terrainShaders[0].use();
 		glUniform4fv(lightposID, 1, value_ptr(lightpos));
 	}
 	else if (terrainshader == 1)
 	{
-		lambertShader.use();
-		glUniformMatrix4fv(lamb_viewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(lamb_projectionID, 1, GL_FALSE, &projection[0][0]);
+		terrainShaders[1].use();
 		glUniform4fv(lamb_lightposID, 1, value_ptr(lightpos));
 	}
 
-	//uniforms to normal shader
-	normalShader.use();
-	glUniformMatrix4fv(normalviewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(normalprojectionID, 1, GL_FALSE, &projection[0][0]);
-
-	//uniforms to lightcube shader...
-	cubeShader.use();
-	glUniformMatrix4fv(basicviewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(basicprojectionID, 1, GL_FALSE, &projection[0][0]);
+	//Update matrix UBO with projection and view matrices
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, offset_projection, sizeof(mat4), value_ptr(projection));
+	glBufferSubData(GL_UNIFORM_BUFFER, offset_view, sizeof(mat4), value_ptr(view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Define our model transformation in a stack and 
 	// push the identity matrix onto the stack
@@ -243,25 +241,24 @@ void display()
 		normalmatrix = transpose(inverse(mat3(view * model.top())));
 
 		//Draw terrain
+		//Update UBO with model and mormal matrices
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(mat3), value_ptr(normalmatrix));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		if (terrainshader == 0)
 		{
-			hapkeShader.use();
-			glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
-			glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
+			terrainShaders[0].use();
 			LunarTerrain->drawTerrain(drawmode);
 		}
 		else if (terrainshader == 1)
 		{
-			lambertShader.use();
-			glUniformMatrix4fv(lamb_modelID, 1, GL_FALSE, &model.top()[0][0]);
-			glUniformMatrix3fv(lamb_normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
+			terrainShaders[1].use();
 			LunarTerrain->drawTerrain(drawmode);
 		}
-
 		if (shownormals)
 		{
 			normalShader.use();
-			glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
 			LunarTerrain->drawTerrain(2); //draw as points
 		}
 
@@ -272,11 +269,15 @@ void display()
 	{
 		model.top() = translate(model.top(), vec3(lightx, lighty, lightz));
 		model.top() = scale(model.top(), vec3(1, 1, 1));
+		normalmatrix = transpose(inverse(mat3(view * model.top())));
 
-
-		//Send uniforms and draw cube
+		//Update UBO
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(mat3), &normalmatrix);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		//draw cube
 		cubeShader.use();
-		glUniformMatrix4fv(basicmodelID, 1, GL_FALSE, &model.top()[0][0]);
 		aCube.drawCube(cubeShader);
 	}
 	model.pop();
@@ -284,23 +285,6 @@ void display()
 
 	glDisableVertexAttribArray(0);
 	glUseProgram(0);
-
-	/*
-	Example of draw call include these here.
-
-	model.push(model.top());
-	{
-		model.top() = translate(model.top(), vec3(1.175, -0.295, 0.58)); // Values just worked out after trial and error to make them fit
-		model.top() = rotate(model.top(), -radians(needle_rotation), vec3(0, 0, 1)); //rotating around z-axis
-		//Send uniforms and draw Needle
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &(model.top()[0][0]));
-		normalmatrix = transpose(inverse(mat3(view * model.top())));
-		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
-		Needle.Draw(aShader);
-	}
-	model.pop();
-	*/
-
 
 	////////////////Modify our animation variables///////////////////
 
@@ -386,7 +370,7 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 /* Entry point of program */
 int main(int argc, char* argv[])
 {
-	GLWrapper *glw = new GLWrapper(1024, 768, "Gramophone");;
+	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM");;
 
 	if (!ogl_LoadFunctions())
 	{
