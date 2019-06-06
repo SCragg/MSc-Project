@@ -37,7 +37,7 @@ void main()
 	vec4 P = mv_matrix * position;
 
 	// Define light direction: L
-	vec3 transformed_lightdir = normalmatrix * lightdir.xyz;
+	vec3 transformed_lightdir = normalmatrix * lightdir.xyz; //use normal matrix to transform light direction
 
 	//Output vectors to vertex shader
 	fL = normalize(transformed_lightdir.xyz);

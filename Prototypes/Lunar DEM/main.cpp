@@ -67,7 +67,7 @@ Cube aCube;
 //Flags
 GLboolean shownormals;
 GLuint drawmode;
-GLuint terrainshader;
+GLuint currentterrainshader;
 
 using namespace std;
 using namespace glm;
@@ -93,7 +93,7 @@ void init(GLWrapper *glw)
 	//initial flag values
 	shownormals = false;
 	drawmode = 0;
-	terrainshader = 0;
+	currentterrainshader = 0;
 
 	//Create Lunar DEM
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
@@ -157,11 +157,11 @@ void init(GLWrapper *glw)
 	GLuint uniBlock_MatLambert = glGetUniformBlockIndex(terrainShaders[1].ID, "Matrices");
 	GLuint uniBlock_MatNormals = glGetUniformBlockIndex(normalShader.ID, "Matrices");
 	GLuint uniBlock_MatCube = glGetUniformBlockIndex(cubeShader.ID, "Matrices");
-	//then link shaders uniform block to binding point, 0 for this
+	//then explicitly link shaders uniform block to binding point, 0 for this buffer
 	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatHapke, 0);
-	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatLambert, 0);
-	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatNormals, 0);
-	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatCube, 0);
+	glUniformBlockBinding(terrainShaders[1].ID, uniBlock_MatLambert, 0);
+	glUniformBlockBinding(normalShader.ID, uniBlock_MatNormals, 0);
+	glUniformBlockBinding(cubeShader.ID, uniBlock_MatCube, 0);
 	//Create matrices uniform buffer object
 	glGenBuffers(1, &ubo_Matrices);
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
@@ -204,16 +204,8 @@ void display()
 	vec4 lightdirection = rotate(mat4(1.0f), radians(HourAngle), vec3(0, 0, 1)) * vec4(0, 1, 0, 1);
 
 	// Send our projection and view uniforms and light position to the shader
-	if (terrainshader == 0)
-	{
-		terrainShaders[0].use();
-		glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
-	}
-	else if (terrainshader == 1)
-	{
-		terrainShaders[1].use();
-		glUniform4fv(lamb_lightdirID, 1, value_ptr(lightdirection));
-	}
+	terrainShaders[currentterrainshader].use();
+	glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
 
 	//Update matrix UBO with projection and view matrices
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
@@ -238,22 +230,16 @@ void display()
 		model.top() = rotate(model.top(), -radians(angle_z), vec3(0, 0, 1)); //rotating in clockwise direction around z-axis
 		normalmatrix = transpose(inverse(mat3(view * model.top())));
 
-		//Draw terrain
-		//Update UBO with model and mormal matrices
+		//Update UBO with model and normal matrices
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
 		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(vec4)*3, value_ptr(mat4(normalmatrix)));
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-		if (terrainshader == 0)
-		{
-			terrainShaders[0].use();
-			LunarTerrain->drawTerrain(drawmode);
-		}
-		else if (terrainshader == 1)
-		{
-			terrainShaders[1].use();
-			LunarTerrain->drawTerrain(drawmode);
-		}
+
+		//Draw terrain
+		terrainShaders[currentterrainshader].use();
+		LunarTerrain->drawTerrain(drawmode);
+
 		if (shownormals)
 		{
 			normalShader.use();
@@ -377,8 +363,8 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	//Change shader
 	if (key == 'C' && action == GLFW_PRESS)
 	{
-		if (terrainshader == 0) terrainshader = 1;
-		else if (terrainshader == 1) terrainshader = 0;
+		if (currentterrainshader < terrainShaders.size() - 1) currentterrainshader ++;
+		else  currentterrainshader = 0;
 	}
 }
 
