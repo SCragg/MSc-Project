@@ -92,7 +92,7 @@ void DEM_terrain::generateTerrain()
 				//Add to buffer
 				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
 				normals[x * X_res + z] = glm::vec3(0, 0, 0);
-				colours[x * X_res + z] = glm::vec4(0.65, 0.65, 0.65, 1);
+				colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
 				zpos += zstep;
 			}
 			xpos += xstep;

@@ -28,33 +28,33 @@ float absg = abs(g);
 
 //Hapke parameters
 const float w = 0.33; //from pangu video
-const float Bo = 0.95; //estimate from paper
-float h = 0.05; //from paper looks like a guesstimate
+const float Bo = 1; //estimate from paper
+float h = 0.4; //from paper looks like a guesstimate
 float e = acos(U);
 
 void main()
 {
+	//Average phase
+	float pg = ((4 * PI) / 5 ) * ( (sin(g) + (PI - g) * cos(g)) / PI) + (pow((1 - cos(g)), 2) / 10);
 
-//Average phase
-float pg = ((4 * PI) / 5 ) * ( (sin(g) + (PI - g) * cos(g)) / PI) + (pow((1 - cos(g)), 2) / 10);
+	float Hapke = 0.0;
+	if (U > 0.0 && Uo > 0.0)
+	{
+		//first part: w/4pi
+		float first = w / (4 * PI);
 
-float Hapke = 0.0;
-if (U > 0.0 && Uo > 0.0)
-{
-//first part: w/4pi
-float first = w / (4 * PI);
-//second part: Uo/(Uo+U)
-float second = Uo / (Uo + U);
-//float second = 1;
-//third part: {[i + B(g)]P(g) + H(Uo)H(u) -1)
-float third = (1 + Hapke_B(absg, h)) * pg + Hapke_H(Uo, w) * Hapke_H(U, w) - 1;
+		//second part: Uo/(Uo+U)
+		float second = Uo / (Uo + U);
 
-Hapke = first * second * third;
-}
-//Outputs
-float lambert = max(0.0,Uo);
-outputColor = fcolour * mix(lambert, Hapke, 1);
+		//third part: {[i + B(g)]P(g) + H(Uo)H(u) -1)
+		float third = (1 + Hapke_B(absg, h)) * pg + Hapke_H(Uo, w) * Hapke_H(U, w) - 1;
 
+		Hapke = first * second * third * 4;
+	}
+
+	//Outputs
+	float lambert = max(0.0,Uo);
+	outputColor = fcolour * mix(lambert, Hapke, 1);
 }
 
 float Hapke_H(float u, float w)
@@ -67,12 +67,11 @@ float Hapke_H(float u, float w)
 //Backscatter function
 float Hapke_B (float absg, float h)
 {
-if (absg < 1)
-	return Bo * (1 - 3 * absg / 2 * h);
+//if (absg < 1)
+	//return Bo * (1 - 3 * absg / 2 * h);
 
-else if (absg <= PI/2)
-	return Bo * (1 - (tan(absg) / (2 * h)) * (3 - pow(e, (-h/tan(absg)))) * (1 - pow(e, (-h/tan(absg)))));
-	//return Bo * (1 - (tan(absg) / (2 * h)) * (3 - exp(-h/tan(absg))) * (1 - exp(-h/tan(absg))));
+if (absg <= PI/2)
+	return Bo * (1 - (tan(absg) / (2 * h)) * (3 - exp(-h/tan(absg))) * (1 - exp(-h/tan(absg))));
 
 else
 	return 0;

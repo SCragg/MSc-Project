@@ -46,21 +46,22 @@ GLfloat move_x, move_y, move_z;
 GLfloat aspect_ratio;		// Aspect ratio of the window defined in the reshape callback
 GLfloat lightx, lighty, lightz;
 
-
 /* Uniforms*/
-GLuint modelID, viewID, projectionID, normalmatrixID,
-	lightposID, diffuseID, shininessID, is_model_texturedID;
+GLuint modelID, viewID, projectionID, normalmatrixID, lightposID;
+GLuint lamb_modelID, lamb_viewID, lamb_projectionID, lamb_normalmatrixID, lamb_lightposID;
 GLuint basicmodelID, basicviewID, basicprojectionID;
 GLuint normalmodelID, normalviewID, normalprojectionID;
 
 /* Global instances of our objects */
-Shader aShader, normalShader, cubeShader;
+Shader normalShader, cubeShader;
+vector<Shader> terrainShaders;
 DEM_terrain* LunarTerrain;
 Cube aCube;
 
 //Flags
 GLboolean shownormals;
 GLuint drawmode;
+GLuint terrainshader;
 
 using namespace std;
 using namespace glm;
@@ -88,6 +89,7 @@ void init(GLWrapper *glw)
 	//initial flag values
 	shownormals = false;
 	drawmode = 0;
+	terrainshader = 0;
 
 	//Create Lunar DEM
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
@@ -97,11 +99,23 @@ void init(GLWrapper *glw)
 	//Create cube
 	aCube.makeCube();
 
-	/* Load shaders in to shader object */
+	/* Load terrain shaders in to shader vector */
 	try
 	{
-		aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
-		//aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
+		terrainShaders.push_back();
+		terrainShaders[0].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
+	}
+	catch (exception &e)
+	{
+		cout << "Caught exception: " << e.what() << endl;
+		cin.ignore();
+		exit(0);
+	}
+
+	try
+	{
+		terrainShaders.push_back();
+		terrainShaders[1].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Lambert.frag");
 	}
 	catch (exception &e)
 	{
@@ -133,11 +147,18 @@ void init(GLWrapper *glw)
 	}
 
 	/* Define uniforms to send to vertex shader */
-	modelID = glGetUniformLocation(aShader.ID, "model");
-	viewID = glGetUniformLocation(aShader.ID, "view");
-	projectionID = glGetUniformLocation(aShader.ID, "projection");
-	lightposID = glGetUniformLocation(aShader.ID, "lightpos");
-	normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
+	modelID = glGetUniformLocation(hapkeShader.ID, "model");
+	viewID = glGetUniformLocation(hapkeShader.ID, "view");
+	projectionID = glGetUniformLocation(hapkeShader.ID, "projection");
+	lightposID = glGetUniformLocation(hapkeShader.ID, "lightpos");
+	normalmatrixID = glGetUniformLocation(hapkeShader.ID, "normalmatrix");
+
+	/* Define uniforms to send to vertex shader */
+	lamb_modelID = glGetUniformLocation(lambertShader.ID, "model");
+	lamb_viewID = glGetUniformLocation(lambertShader.ID, "view");
+	lamb_projectionID = glGetUniformLocation(lambertShader.ID, "projection");
+	lamb_lightposID = glGetUniformLocation(lambertShader.ID, "lightpos");
+	lamb_normalmatrixID = glGetUniformLocation(lambertShader.ID, "normalmatrix");
 
 	//uniforms for normal shader
 	normalmodelID = glGetUniformLocation(normalShader.ID, "model");
@@ -179,10 +200,20 @@ void display()
 	vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
 
 	// Send our projection and view uniforms and light position to the shader
-	aShader.use();
-	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
-	glUniform4fv(lightposID, 1, value_ptr(lightpos));
+	if (terrainshader == 0)
+	{
+		hapkeShader.use();
+		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
+		glUniform4fv(lightposID, 1, value_ptr(lightpos));
+	}
+	else if (terrainshader == 1)
+	{
+		lambertShader.use();
+		glUniformMatrix4fv(lamb_viewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(lamb_projectionID, 1, GL_FALSE, &projection[0][0]);
+		glUniform4fv(lamb_lightposID, 1, value_ptr(lightpos));
+	}
 
 	//uniforms to normal shader
 	normalShader.use();
@@ -212,16 +243,26 @@ void display()
 		normalmatrix = transpose(inverse(mat3(view * model.top())));
 
 		//Draw terrain
-		aShader.use();
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
-		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
-		LunarTerrain->drawTerrain(drawmode);
+		if (terrainshader == 0)
+		{
+			hapkeShader.use();
+			glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
+			glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
+			LunarTerrain->drawTerrain(drawmode);
+		}
+		else if (terrainshader == 1)
+		{
+			lambertShader.use();
+			glUniformMatrix4fv(lamb_modelID, 1, GL_FALSE, &model.top()[0][0]);
+			glUniformMatrix3fv(lamb_normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
+			LunarTerrain->drawTerrain(drawmode);
+		}
 
 		if (shownormals)
 		{
 			normalShader.use();
 			glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
-			LunarTerrain->drawTerrain(2);
+			LunarTerrain->drawTerrain(2); //draw as points
 		}
 
 	}
@@ -331,6 +372,13 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	{
 		if (drawmode < 2) drawmode++;
 		else drawmode = 0;
+	}
+
+	//Change shader
+	if (key == 'C' && action == GLFW_PRESS)
+	{
+		if (terrainshader == 0) terrainshader = 1;
+		else if (terrainshader == 1) terrainshader = 0;
 	}
 }
 
