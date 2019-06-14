@@ -55,8 +55,10 @@ const GLint offset_view = 64;
 const GLint offset_model = 128;
 const GLint offset_normalmatrix = 192;
 
+//Uniforms
 GLuint lightdirID;
 GLuint lamb_lightdirID;
+GLuint therm1_lightdirID, therm1_albedoID, therm1_solarID, therm1_emissID;
 
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
@@ -128,6 +130,18 @@ void init(GLWrapper *glw)
 		exit(0);
 	}
 
+	try
+	{
+		terrainShaders.push_back(Shader());
+		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_1.vert", "..\\..\\shaders\\Thermal_1.frag");
+	}
+	catch (exception &e)
+	{
+		cout << "Caught exception: " << e.what() << endl;
+		cin.ignore();
+		exit(0);
+	}
+
 	//Load other shaders
 	try
 	{
@@ -155,11 +169,13 @@ void init(GLWrapper *glw)
 	//get uniform block index for shaders
 	GLuint uniBlock_MatHapke = glGetUniformBlockIndex(terrainShaders[0].ID, "Matrices");
 	GLuint uniBlock_MatLambert = glGetUniformBlockIndex(terrainShaders[1].ID, "Matrices");
+	GLuint uniBlock_MatThermal_1 = glGetUniformBlockIndex(terrainShaders[2].ID, "Matrices");
 	GLuint uniBlock_MatNormals = glGetUniformBlockIndex(normalShader.ID, "Matrices");
 	GLuint uniBlock_MatCube = glGetUniformBlockIndex(cubeShader.ID, "Matrices");
 	//then explicitly link shaders uniform block to binding point, 0 for this buffer
 	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatHapke, 0);
 	glUniformBlockBinding(terrainShaders[1].ID, uniBlock_MatLambert, 0);
+	glUniformBlockBinding(terrainShaders[2].ID, uniBlock_MatThermal_1, 0);
 	glUniformBlockBinding(normalShader.ID, uniBlock_MatNormals, 0);
 	glUniformBlockBinding(cubeShader.ID, uniBlock_MatCube, 0);
 	//Create matrices uniform buffer object
@@ -173,6 +189,12 @@ void init(GLWrapper *glw)
 	/* Define light position uniforms */
 	lightdirID = glGetUniformLocation(terrainShaders[0].ID, "lightdir");
 	lamb_lightdirID = glGetUniformLocation(terrainShaders[1].ID, "lightdir");
+	therm1_lightdirID = glGetUniformLocation(terrainShaders[2].ID, "lightdir");
+
+	//Define uniforms for thermal shader
+	therm1_solarID = glGetUniformLocation(terrainShaders[2].ID, "solar_constant");
+	therm1_emissID = glGetUniformLocation(terrainShaders[2].ID, "emissivity");
+	therm1_albedoID = glGetUniformLocation(terrainShaders[2].ID, "albedo");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -205,7 +227,20 @@ void display()
 
 	// Send our projection and view uniforms and light position to the shader
 	terrainShaders[currentterrainshader].use();
-	glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
+	switch (currentterrainshader)
+	{
+	case 0:
+		glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
+		break;
+
+	case 1:
+		glUniform4fv(lamb_lightdirID, 1, value_ptr(lightdirection));
+		break;
+
+	case 2:
+		glUniform4fv(therm1_lightdirID, 1, value_ptr(lightdirection));
+		break;
+	}
 
 	//Update matrix UBO with projection and view matrices
 	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
@@ -238,6 +273,14 @@ void display()
 
 		//Draw terrain
 		terrainShaders[currentterrainshader].use();
+		if (currentterrainshader == 2)
+		{
+			//If thermal shader send uniforms:
+			glUniform1f(therm1_albedoID, 0.08); //Albedo of 0.08
+			glUniform1f(therm1_emissID, 0.95); //Emissivity of 0.95
+			glUniform1f(therm1_solarID, 1370); //Solar Constant 1370
+
+		}
 		LunarTerrain->drawTerrain(drawmode);
 
 		if (shownormals)

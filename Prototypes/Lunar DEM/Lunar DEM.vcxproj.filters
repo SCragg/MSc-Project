@@ -59,6 +59,12 @@
     <None Include="..\..\shaders\show_normals.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\..\shaders\Thermal_1.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Thermal_1.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h">
