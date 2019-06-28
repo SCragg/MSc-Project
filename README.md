@@ -1,2 +1,4 @@
 # MSc-Project
-MSc project files. Aim to create an OpenGL program to simulate thermals images of terrain of space objects, hopefully to move on to spacecraft in the future.
+MSc project files.
+
+Creating an openGL program to render lunar terrain as a thermal image
