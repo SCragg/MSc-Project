@@ -1,0 +1,18 @@
+identifier                PANGU: DEM Metadata
+base_surface_type         pangu
+surface_file_name         surface_region_0_layer_0.dem
+magnitude                 0
+size                      512 512
+height_resolution         1
+horizontal_resolution     2
+fractal_number            0.8
+height_range              45.5941
+projection_type           cartesian
+dem_centre                0 0
+pixel_type                area
+reference_frame           none
+projection_centre         0 0
+equatorial_radius         1e+020
+polar_radius              1e+020
+sample_projection_offset  0
+line_projection_offset    0
