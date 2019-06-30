@@ -51,7 +51,7 @@ void DEM_terrain::createObject()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void DEM_terrain::generateTerrain()
+void DEM_terrain::generateTerrain_flat()
 {
 	//Arrays for vertex information
 	vertices = new glm::vec4[numvertices];
@@ -119,6 +119,52 @@ void DEM_terrain::generateTerrain()
 		return;
 	}
 }
+
+/*
+Uses inverse mercator equation
+*/
+void DEM_terrain::generateTerrain_sphere()
+{
+	if (vertices == nullptr)
+	{
+		//std::cout << "Error vertices not defined!" << std::endl;
+		return;
+	}
+	else
+	{
+		GLfloat radius = 20; //Will change this in the future to be a function parameter I think, still need to think controls through better
+		GLfloat lat_range = glm::radians(30.0f);
+
+		for (int i = 0; i < numvertices; i++)
+		{
+			float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
+			float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
+			float R = (vertices[i][1]/(X_size / lat_range)) + radius;
+
+			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
+
+			vertices[i] = new_coord;
+		}
+	}
+
+	/* Define vertices for triangle strips */
+	for (GLuint x = 0; x < X_res - 1; x++)
+	{
+		GLuint top = x * Z_res;
+		GLuint bottom = top + Z_res;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			elements.push_back(top++);
+			elements.push_back(bottom++);
+		}
+	}
+
+	// Calculate the normals by averaging cross products for all triangles 
+	calculateNormals();
+
+	return;
+}
+
 
 void DEM_terrain::drawTerrain(int drawmode)
 {

@@ -18,7 +18,8 @@ public:
 	~DEM_terrain();
 
 	void createObject();
-	void generateTerrain();
+	void generateTerrain_flat();
+	void generateTerrain_sphere();
 	void drawTerrain(int drawmode);
 	void setColour();
 
@@ -34,9 +35,9 @@ private:
 
 	//Vertex Data
 	GLuint numvertices;
-	glm::vec4* vertices;
-	glm::vec3* normals;
-	glm::vec4* colours;
+	glm::vec4* vertices = nullptr;
+	glm::vec3* normals = nullptr;
+	glm::vec4* colours = nullptr;
 	std::vector<GLuint> elements;
 
 	//Vertex Buffer Indices
