@@ -41,26 +41,33 @@ also includes the OpenGL extension initialisation*/
 GLfloat angle_x, angle_inc_x, model_scale; //from lab example
 GLfloat angle_y, angle_inc_y, angle_z, angle_inc_z; //from lab example
 GLfloat move_x, move_y, move_z;
-
-//View Globals
 GLfloat aspect_ratio;		// Aspect ratio of the window defined in the reshape callback
-GLfloat lightx, lighty, lightz;
 
+//Light rotation
+GLfloat HourAngle; //Angle of light direction, specified in degrees
 
 /* Uniforms*/
-GLuint modelID, viewID, projectionID, normalmatrixID,
-	lightposID, diffuseID, shininessID, is_model_texturedID;
-GLuint basicmodelID, basicviewID, basicprojectionID;
-GLuint normalmodelID, normalviewID, normalprojectionID;
+GLuint ubo_Matrices; //UBO for view, projection, model and normal transformation matrices
+
+//Offsets for ubo
+const GLint offset_projection = 0;
+const GLint offset_view = 64;
+const GLint offset_model = 128;
+const GLint offset_normalmatrix = 192;
+
+GLuint lightdirID;
+GLuint lamb_lightdirID;
 
 /* Global instances of our objects */
-Shader aShader, normalShader, cubeShader;
+Shader normalShader, cubeShader;
+vector<Shader> terrainShaders;
 DEM_terrain* LunarTerrain;
 Cube aCube;
 
 //Flags
 GLboolean shownormals;
 GLuint drawmode;
+GLuint currentterrainshader;
 
 using namespace std;
 using namespace glm;
@@ -80,14 +87,13 @@ void init(GLWrapper *glw)
 	model_scale = .2f;
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
-	//light position values
-	lightx = 0.5;
-	lighty = 15;
-	lightz = 0.5;
+	//hour angle
+	HourAngle = 0;
 
 	//initial flag values
 	shownormals = false;
 	drawmode = 0;
+	currentterrainshader = 0;
 
 	//Create Lunar DEM
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
@@ -97,11 +103,11 @@ void init(GLWrapper *glw)
 	//Create cube
 	aCube.makeCube();
 
-	/* Load shaders in to shader object */
+	/* Load terrain shaders in to shader vector */
 	try
 	{
-		aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
-		//aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
+		terrainShaders.push_back(Shader());
+		terrainShaders[0].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
 	}
 	catch (exception &e)
 	{
@@ -110,6 +116,19 @@ void init(GLWrapper *glw)
 		exit(0);
 	}
 
+	try
+	{
+		terrainShaders.push_back(Shader());
+		terrainShaders[1].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Lambert.frag");
+	}
+	catch (exception &e)
+	{
+		cout << "Caught exception: " << e.what() << endl;
+		cin.ignore();
+		exit(0);
+	}
+
+	//Load other shaders
 	try
 	{
 		normalShader.LoadShader("..\\..\\shaders\\show_normals.vert", "..\\..\\shaders\\show_normals.frag", "..\\..\\shaders\\show_normals.geom");
@@ -132,22 +151,28 @@ void init(GLWrapper *glw)
 		exit(0);
 	}
 
-	/* Define uniforms to send to vertex shader */
-	modelID = glGetUniformLocation(aShader.ID, "model");
-	viewID = glGetUniformLocation(aShader.ID, "view");
-	projectionID = glGetUniformLocation(aShader.ID, "projection");
-	lightposID = glGetUniformLocation(aShader.ID, "lightpos");
-	normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
+	//Uniform buffer setup
+	//get uniform block index for shaders
+	GLuint uniBlock_MatHapke = glGetUniformBlockIndex(terrainShaders[0].ID, "Matrices");
+	GLuint uniBlock_MatLambert = glGetUniformBlockIndex(terrainShaders[1].ID, "Matrices");
+	GLuint uniBlock_MatNormals = glGetUniformBlockIndex(normalShader.ID, "Matrices");
+	GLuint uniBlock_MatCube = glGetUniformBlockIndex(cubeShader.ID, "Matrices");
+	//then explicitly link shaders uniform block to binding point, 0 for this buffer
+	glUniformBlockBinding(terrainShaders[0].ID, uniBlock_MatHapke, 0);
+	glUniformBlockBinding(terrainShaders[1].ID, uniBlock_MatLambert, 0);
+	glUniformBlockBinding(normalShader.ID, uniBlock_MatNormals, 0);
+	glUniformBlockBinding(cubeShader.ID, uniBlock_MatCube, 0);
+	//Create matrices uniform buffer object
+	glGenBuffers(1, &ubo_Matrices);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+	glBufferData(GL_UNIFORM_BUFFER, 240, NULL, GL_DYNAMIC_DRAW); //Buffer size of 240 bytes
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	//bind buffer to binding point
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_Matrices);
 
-	//uniforms for normal shader
-	normalmodelID = glGetUniformLocation(normalShader.ID, "model");
-	normalviewID = glGetUniformLocation(normalShader.ID, "view");
-	normalprojectionID = glGetUniformLocation(normalShader.ID, "projection");
-
-	//uniforms for lightcube shader
-	basicmodelID = glGetUniformLocation(cubeShader.ID, "model");
-	basicviewID = glGetUniformLocation(cubeShader.ID, "view");
-	basicprojectionID = glGetUniformLocation(cubeShader.ID, "projection");
+	/* Define light position uniforms */
+	lightdirID = glGetUniformLocation(terrainShaders[0].ID, "lightdir");
+	lamb_lightdirID = glGetUniformLocation(terrainShaders[1].ID, "lightdir");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -175,24 +200,18 @@ void display()
 
 	view = translate(view, vec3(move_x, move_y, move_z));
 
-	// Define the light position and transform by the view matrix - from lab example
-	vec4 lightpos = view * vec4(lightx, lighty, lightz, 1.0);
+	// Define light direction using hour angle
+	vec4 lightdirection = rotate(mat4(1.0f), radians(HourAngle), vec3(0, 0, 1)) * vec4(0, 1, 0, 1);
 
 	// Send our projection and view uniforms and light position to the shader
-	aShader.use();
-	glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
-	glUniform4fv(lightposID, 1, value_ptr(lightpos));
+	terrainShaders[currentterrainshader].use();
+	glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
 
-	//uniforms to normal shader
-	normalShader.use();
-	glUniformMatrix4fv(normalviewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(normalprojectionID, 1, GL_FALSE, &projection[0][0]);
-
-	//uniforms to lightcube shader...
-	cubeShader.use();
-	glUniformMatrix4fv(basicviewID, 1, GL_FALSE, &view[0][0]);
-	glUniformMatrix4fv(basicprojectionID, 1, GL_FALSE, &projection[0][0]);
+	//Update matrix UBO with projection and view matrices
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+	glBufferSubData(GL_UNIFORM_BUFFER, offset_projection, sizeof(mat4), value_ptr(projection));
+	glBufferSubData(GL_UNIFORM_BUFFER, offset_view, sizeof(mat4), value_ptr(view));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Define our model transformation in a stack and 
 	// push the identity matrix onto the stack
@@ -211,55 +230,46 @@ void display()
 		model.top() = rotate(model.top(), -radians(angle_z), vec3(0, 0, 1)); //rotating in clockwise direction around z-axis
 		normalmatrix = transpose(inverse(mat3(view * model.top())));
 
+		//Update UBO with model and normal matrices
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(vec4)*3, value_ptr(mat4(normalmatrix)));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 		//Draw terrain
-		aShader.use();
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
-		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
+		terrainShaders[currentterrainshader].use();
 		LunarTerrain->drawTerrain(drawmode);
 
 		if (shownormals)
 		{
 			normalShader.use();
-			glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
-			LunarTerrain->drawTerrain(2);
+			LunarTerrain->drawTerrain(2); //draw as points
 		}
 
 	}
 	model.pop();
 
+	/*
 	model.push(model.top());
 	{
 		model.top() = translate(model.top(), vec3(lightx, lighty, lightz));
 		model.top() = scale(model.top(), vec3(1, 1, 1));
-
-
-		//Send uniforms and draw cube
-		cubeShader.use();
-		glUniformMatrix4fv(basicmodelID, 1, GL_FALSE, &model.top()[0][0]);
-		aCube.drawCube(cubeShader);
-	}
-	model.pop();
-
-
-	glDisableVertexAttribArray(0);
-	glUseProgram(0);
-
-	/*
-	Example of draw call include these here.
-
-	model.push(model.top());
-	{
-		model.top() = translate(model.top(), vec3(1.175, -0.295, 0.58)); // Values just worked out after trial and error to make them fit
-		model.top() = rotate(model.top(), -radians(needle_rotation), vec3(0, 0, 1)); //rotating around z-axis
-		//Send uniforms and draw Needle
-		glUniformMatrix4fv(modelID, 1, GL_FALSE, &(model.top()[0][0]));
 		normalmatrix = transpose(inverse(mat3(view * model.top())));
-		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
-		Needle.Draw(aShader);
+
+		//Update UBO
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo_Matrices);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_model, sizeof(mat4), &model.top()[0][0]);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset_normalmatrix, sizeof(mat3), &normalmatrix);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		//draw cube
+		cubeShader.use();
+		aCube.drawCube(cubeShader);
 	}
 	model.pop();
 	*/
 
+	glDisableVertexAttribArray(0);
+	glUseProgram(0);
 
 	////////////////Modify our animation variables///////////////////
 
@@ -310,6 +320,22 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == GLFW_KEY_RIGHT_SHIFT) move_z -= 1.0;
 	if (key == GLFW_KEY_RIGHT_CONTROL) move_z += 1.0;
 
+	//Change hour angle
+	if (key == 'O')
+	{
+		if (HourAngle < 359) HourAngle++;
+		else HourAngle = 0;
+		cout << "Hour angle: " << HourAngle << " degrees. \n";
+	}
+
+	if (key == 'P')
+	{
+		if (HourAngle > 0) HourAngle--;
+		else HourAngle = 359;
+		cout << "Hour angle: " << HourAngle << " degrees. \n";
+	}
+
+	/*
 	//Move light position
 	//if (action != GLFW_PRESS) return;
 	if (key == 'O') lightx += 1.0f;
@@ -318,6 +344,7 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'L') lighty -= 1.0f;
 	if (key == 'N')	lightz += 1.0f;
 	if (key == 'M') lightz -= 1.0f;
+	*/
 
 	//Shows/hides normal
 	if (key == 'V' && action == GLFW_PRESS)
@@ -332,13 +359,20 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 		if (drawmode < 2) drawmode++;
 		else drawmode = 0;
 	}
+
+	//Change shader
+	if (key == 'C' && action == GLFW_PRESS)
+	{
+		if (currentterrainshader < terrainShaders.size() - 1) currentterrainshader ++;
+		else  currentterrainshader = 0;
+	}
 }
 
 
 /* Entry point of program */
 int main(int argc, char* argv[])
 {
-	GLWrapper *glw = new GLWrapper(1024, 768, "Gramophone");;
+	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM");;
 
 	if (!ogl_LoadFunctions())
 	{

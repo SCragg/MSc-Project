@@ -10,9 +10,17 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 colour;
 
 // Uniform variables are passed in from the application
-uniform mat4 model, view, projection;
-uniform mat3 normalmatrix;
-uniform vec4 lightpos;
+layout (std140) uniform Matrices
+{
+							//base align	//aligned offset
+	mat4 projection;		//16 * 4		//0
+	mat4 view;				//16 * 4		//64
+	mat4 model;				//16 * 4		//128
+	mat3 normalmatrix;		//16 * 3		//192
+
+							//total size = 240 bytes
+};
+uniform vec4 lightdir;
 
 // Output the vertex colour - to be rasterized into pixel fragments
 out vec4 fcolour;
@@ -29,10 +37,10 @@ void main()
 	vec4 P = mv_matrix * position;
 
 	// Define light direction: L
-	//vec4 transformed_lightpos = mv_matrix * lightpos;
+	vec3 transformed_lightdir = normalmatrix * lightdir.xyz; //use normal matrix to transform light direction
 
 	//Output vectors to vertex shader
-	fL = normalize(lightpos.xyz - P.xyz);
+	fL = normalize(transformed_lightdir.xyz);
 	fV = normalize(-P.xyz);
 	fN = normalize((normalmatrix * normal));
 
