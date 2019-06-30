@@ -133,7 +133,7 @@ void init(GLWrapper *glw)
 	try
 	{
 		terrainShaders.push_back(Shader());
-		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_1.vert", "..\\..\\shaders\\Thermal_1.frag");
+		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_2.vert", "..\\..\\shaders\\Thermal_2.frag");
 	}
 	catch (exception &e)
 	{
