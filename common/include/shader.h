@@ -3,7 +3,7 @@ I abstracted the shader to its own class.
 The functions used to load the shader are taken directly from the wrapper_glfw.
 
 Some functions are also taken from https://learnopengl.com/Getting-started/Shaders
-which are used within the mesh and model classes and for general functionality. 
+which are used within the mesh and model classes and for general functionality.
 */
 
 
@@ -38,6 +38,7 @@ public:
 
 	//Load shaders in to the program - taken from wrapper_glfw.
 	void LoadShader(const char *vertex_path, const char *fragment_path);
+	void LoadShader(const char *vertex_path, const char *fragment_path, const char *geometry_path);
 
 	//Uniform utilities: taken from https://learnopengl.com/Getting-started/Shaders
 	void setBool(const std::string &name, bool value) const;

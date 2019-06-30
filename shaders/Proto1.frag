@@ -48,6 +48,6 @@ void main()
 	specular = specular_col.xyz * spec_val;
 
 	//Outputs
-	outputColor = ambient + diffuse + (vec4(specular, 1.0) * 0.3);
+	outputColor = ambient + diffuse;// + (vec4(specular, 1.0) * 0.3);
 
 }

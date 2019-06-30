@@ -50,6 +50,15 @@
     <None Include="..\..\shaders\Hapke.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\..\shaders\show_normals.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\show_normals.geom">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\show_normals.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h">

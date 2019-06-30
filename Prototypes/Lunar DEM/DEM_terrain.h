@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLM_SWIZZLE
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -17,7 +19,7 @@ public:
 
 	void createObject();
 	void generateTerrain();
-	void drawTerrain();
+	void drawTerrain(int drawmode);
 	void setColour();
 
 private:

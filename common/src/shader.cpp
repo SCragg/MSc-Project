@@ -57,6 +57,41 @@ void Shader::LoadShader(const char *vertex_path, const char *fragment_path)
 	glDeleteShader(fragShader);
 }
 
+void Shader::LoadShader(const char *vertex_path, const char *fragment_path, const char *geometry_path)
+{
+	GLuint vertShader, fragShader, geomShader;
+
+	// Read shaders
+	string vertShaderStr = readFile(vertex_path);
+	string fragShaderStr = readFile(fragment_path);
+	string geomShaderStr = readFile(geometry_path);
+
+	GLint result = GL_FALSE;
+	int logLength;
+
+	vertShader = BuildShader(GL_VERTEX_SHADER, vertShaderStr);
+	fragShader = BuildShader(GL_FRAGMENT_SHADER, fragShaderStr);
+	geomShader = BuildShader(GL_GEOMETRY_SHADER, geomShaderStr);
+
+	cout << "Linking program" << endl;
+	ID = glCreateProgram();
+	glAttachShader(ID, vertShader);
+	glAttachShader(ID, geomShader);
+	glAttachShader(ID, fragShader);
+
+	glLinkProgram(ID);
+
+	glGetProgramiv(ID, GL_LINK_STATUS, &result);
+	glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &logLength);
+	vector<char> programError((logLength > 1) ? logLength : 1);
+	glGetProgramInfoLog(ID, logLength, NULL, &programError[0]);
+	cout << &programError[0] << endl;
+
+	glDeleteShader(vertShader);
+	glDeleteShader(fragShader);
+	glDeleteShader(geomShader);
+}
+
 //Uniform Functions: taken from https://learnopengl.com/Getting-started/Shaders
 void Shader::setBool(const std::string &name, bool value) const
 {
@@ -71,7 +106,7 @@ void Shader::setFloat(const std::string &name, float value) const
 	glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-/* Build shaders from strings containing shader source code: taken from wrapper_GLFW */ 
+/* Build shaders from strings containing shader source code: taken from wrapper_GLFW */
 GLuint Shader::BuildShader(GLenum eShaderType, const string &shaderText)
 {
 	GLuint shader = glCreateShader(eShaderType);

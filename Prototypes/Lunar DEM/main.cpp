@@ -51,11 +51,16 @@ GLfloat lightx, lighty, lightz;
 GLuint modelID, viewID, projectionID, normalmatrixID,
 	lightposID, diffuseID, shininessID, is_model_texturedID;
 GLuint basicmodelID, basicviewID, basicprojectionID;
+GLuint normalmodelID, normalviewID, normalprojectionID;
 
 /* Global instances of our objects */
-Shader aShader, cubeShader;
+Shader aShader, normalShader, cubeShader;
 DEM_terrain* LunarTerrain;
 Cube aCube;
+
+//Flags
+GLboolean shownormals;
+GLuint drawmode;
 
 using namespace std;
 using namespace glm;
@@ -80,8 +85,12 @@ void init(GLWrapper *glw)
 	lighty = 15;
 	lightz = 0.5;
 
+	//initial flag values
+	shownormals = false;
+	drawmode = 0;
+
 	//Create Lunar DEM
-	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024);
+	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
 	LunarTerrain->generateTerrain();
 	LunarTerrain->createObject();
 
@@ -92,6 +101,18 @@ void init(GLWrapper *glw)
 	try
 	{
 		aShader.LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
+		//aShader.LoadShader("..\\..\\shaders\\Proto1.vert", "..\\..\\shaders\\Proto1.frag");
+	}
+	catch (exception &e)
+	{
+		cout << "Caught exception: " << e.what() << endl;
+		cin.ignore();
+		exit(0);
+	}
+
+	try
+	{
+		normalShader.LoadShader("..\\..\\shaders\\show_normals.vert", "..\\..\\shaders\\show_normals.frag", "..\\..\\shaders\\show_normals.geom");
 	}
 	catch (exception &e)
 	{
@@ -117,6 +138,11 @@ void init(GLWrapper *glw)
 	projectionID = glGetUniformLocation(aShader.ID, "projection");
 	lightposID = glGetUniformLocation(aShader.ID, "lightpos");
 	normalmatrixID = glGetUniformLocation(aShader.ID, "normalmatrix");
+
+	//uniforms for normal shader
+	normalmodelID = glGetUniformLocation(normalShader.ID, "model");
+	normalviewID = glGetUniformLocation(normalShader.ID, "view");
+	normalprojectionID = glGetUniformLocation(normalShader.ID, "projection");
 
 	//uniforms for lightcube shader
 	basicmodelID = glGetUniformLocation(cubeShader.ID, "model");
@@ -158,6 +184,11 @@ void display()
 	glUniformMatrix4fv(projectionID, 1, GL_FALSE, &projection[0][0]);
 	glUniform4fv(lightposID, 1, value_ptr(lightpos));
 
+	//uniforms to normal shader
+	normalShader.use();
+	glUniformMatrix4fv(normalviewID, 1, GL_FALSE, &view[0][0]);
+	glUniformMatrix4fv(normalprojectionID, 1, GL_FALSE, &projection[0][0]);
+
 	//uniforms to lightcube shader...
 	cubeShader.use();
 	glUniformMatrix4fv(basicviewID, 1, GL_FALSE, &view[0][0]);
@@ -184,7 +215,15 @@ void display()
 		aShader.use();
 		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model.top()[0][0]);
 		glUniformMatrix3fv(normalmatrixID, 1, GL_FALSE, &normalmatrix[0][0]);
-		LunarTerrain->drawTerrain();
+		LunarTerrain->drawTerrain(drawmode);
+
+		if (shownormals)
+		{
+			normalShader.use();
+			glUniformMatrix4fv(normalmodelID, 1, GL_FALSE, &model.top()[0][0]);
+			LunarTerrain->drawTerrain(2);
+		}
+
 	}
 	model.pop();
 
@@ -279,6 +318,20 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'L') lighty -= 1.0f;
 	if (key == 'N')	lightz += 1.0f;
 	if (key == 'M') lightz -= 1.0f;
+
+	//Shows/hides normal
+	if (key == 'V' && action == GLFW_PRESS)
+	{
+		if (shownormals == false) shownormals = true;
+		else shownormals = false;
+	}
+
+	//Change drawmode
+	if (key == 'B' && action == GLFW_PRESS)
+	{
+		if (drawmode < 2) drawmode++;
+		else drawmode = 0;
+	}
 }
 
 
