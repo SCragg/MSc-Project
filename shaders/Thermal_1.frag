@@ -1,0 +1,13 @@
+#version 420
+
+in vec4 fcolour;
+
+out vec4 outputColor;
+
+void main()
+{
+
+	//Outputs
+	outputColor = fcolour;
+
+}

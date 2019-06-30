@@ -142,6 +142,10 @@
     <None Include="..\..\shaders\show_normals.frag" />
     <None Include="..\..\shaders\show_normals.geom" />
     <None Include="..\..\shaders\show_normals.vert" />
+    <None Include="..\..\shaders\Thermal_1.frag" />
+    <None Include="..\..\shaders\Thermal_1.vert" />
+    <None Include="..\..\shaders\Thermal_2.frag" />
+    <None Include="..\..\shaders\Thermal_2.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h" />
