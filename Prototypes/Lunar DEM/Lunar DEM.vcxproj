@@ -147,6 +147,8 @@
     <None Include="..\..\shaders\Thermal_1.vert" />
     <None Include="..\..\shaders\Thermal_2.frag" />
     <None Include="..\..\shaders\Thermal_2.vert" />
+    <None Include="..\..\shaders\Thermal_Texture.frag" />
+    <None Include="..\..\shaders\Thermal_Texture.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h" />
