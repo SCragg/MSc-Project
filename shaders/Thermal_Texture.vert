@@ -63,7 +63,8 @@ Outputs to fragment shader - colour, normal, light direction
 */
 out vec3 fNormal;
 out vec3 fLightDir;
-out float local_time;
+out vec4 fcolour;
+//out float local_time;
 
 //Main
 void main()
@@ -74,7 +75,34 @@ void main()
 	
 	//Calculations for local time
 	float local_slope;
-	local_slope = acos(dot(normal, vec3(0,1,0))) / (PI/2);
+	//local_slope = acos(dot(normal, vec3(0,1,0))) / (PI/2);
+	local_slope = tan(acos(dot(normal, vec3(0,1,0))));
+	//remove height and normalise
+	vec2 heading_vec = vec2(normal.x, normal.z);
+	normalize(heading_vec);
+
+	//calcuate slope azimuth angle
+	float azimuth = atan(heading_vec.x, heading_vec.y);
+	if (azimuth < 0)
+	{
+		azimuth = 6.28318530718 + azimuth; // convert to range 0 - 2pi
+	}
+
+	//corrction equation
+	float local_time = global_time + (0.5 / PI) * atan(local_slope * sin(azimuth));
+
+	if (local_time < 0 || local_time > 1)
+		{
+			fcolour = vec4(1, 0, 0, 1);
+		}
+	else
+		{
+			fcolour = vec4(local_time, local_time, local_time, local_time);
+		}
+	
+
+
+	//fcolour = vec4(azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718);
 
 	//Output vertex position
 	gl_Position = projection * view * model * position;
