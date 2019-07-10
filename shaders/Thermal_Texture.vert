@@ -91,6 +91,12 @@ void main()
 	//corrction equation
 	float local_time = global_time + (0.5 / PI) * atan(local_slope * sin(azimuth));
 
+	//correct value to range 0 - 1
+	if (local_time < 0)
+		local_time += 1;
+	else if (local_time > 1)
+		local_time -= 1;
+
 	if (local_time < 0 || local_time > 1)
 		{
 			fcolour = vec4(1, 0, 0, 1);
