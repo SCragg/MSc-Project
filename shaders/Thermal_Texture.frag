@@ -7,6 +7,7 @@
 //inputs
 in vec3 fNormal;
 in vec3 fLightDir;
+in float flocal_time;
 
 //Uniforms
 /*
@@ -46,13 +47,18 @@ vec3 L = normalize(fLightDir);
 void main()
 {
 	//Calculate angle of incidence
-	float angle_incidence = acos(clamp(dot(N, L), -1, 1));
+	//float angle_incidence = acos(clamp(dot(N, L), -1, 1));
 
 	//Calculate temp
-	float temp = Daytime_temp(angle_incidence, albedo, solar_constant, emissivity);
+	//float temp = Daytime_temp(angle_incidence, albedo, solar_constant, emissivity);
+
+	//Get temp from texture
+	float temp = texture(thermaltexture, flocal_time).r;
 
 	//Output colour
 	outputColor= Colour_Greyscale(temp, 80, 400); //Linear greyscale with 40K as black and 400K as white.
+
+	//outputColor = vec4(flocal_time, 0, 0, 1);
 }
 
 //Function definitions

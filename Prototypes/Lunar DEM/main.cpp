@@ -102,6 +102,7 @@ void init(GLWrapper *glw)
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
 	LunarTerrain->generateTerrain();
 	LunarTerrain->createObject();
+	LunarTerrain->setTexture(2000, "..\\..\\Textures\\Thermal Profile 1.txt");
 
 	//Create cube
 	aCube.makeCube();
@@ -134,7 +135,7 @@ void init(GLWrapper *glw)
 	try
 	{
 		terrainShaders.push_back(Shader());
-		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_1.frag");
+		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_Texture.frag");
 	}
 	catch (exception &e)
 	{

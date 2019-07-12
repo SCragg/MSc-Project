@@ -63,8 +63,8 @@ Outputs to fragment shader - colour, normal, light direction
 */
 out vec3 fNormal;
 out vec3 fLightDir;
-out vec4 fcolour;
-//out float local_time;
+//out vec4 fcolour;
+out float flocal_time;
 
 //Main
 void main()
@@ -91,12 +91,15 @@ void main()
 	//corrction equation
 	float local_time = global_time + (0.5 / PI) * atan(local_slope * sin(azimuth));
 
-	//correct value to range 0 - 1
+	//correct value to range 0 - 1 and output to frag shader
 	if (local_time < 0)
-		local_time += 1;
+		flocal_time = local_time + 1;
 	else if (local_time > 1)
-		local_time -= 1;
+		flocal_time = local_time - 1;
+	else
+		flocal_time = local_time;
 
+	/*
 	if (local_time < 0 || local_time > 1)
 		{
 			fcolour = vec4(1, 0, 0, 1);
@@ -105,10 +108,13 @@ void main()
 		{
 			fcolour = vec4(local_time, local_time, local_time, local_time);
 		}
-	
+	*/
 
+	//colour vertices by azimuth to test correct azimuth calculation
+	//fcolour = vec4(azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718, 1);
 
-	//fcolour = vec4(azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718);
+	//colour vertices by gradient to test correct gradient calculation
+	//fcolour = vec4(local_slope, local_slope, local_slope, 1);
 
 	//Output vertex position
 	gl_Position = projection * view * model * position;
