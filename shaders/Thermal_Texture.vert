@@ -63,7 +63,7 @@ Outputs to fragment shader - colour, normal, light direction
 */
 out vec3 fNormal;
 out vec3 fLightDir;
-//out vec4 fcolour;
+out vec4 fcolour;
 out float flocal_time;
 
 //Main
@@ -100,15 +100,22 @@ void main()
 		flocal_time = local_time;
 
 	/*
-	if (local_time < 0 || local_time > 1)
+		Below are lines of code for debugging purposes, enable to help with debugging
+	*/
+
+	//flocal_time = global_time;
+
+	/*
+	if (flocal_time < 0 || flocal_time > 1)
 		{
 			fcolour = vec4(1, 0, 0, 1);
 		}
 	else
 		{
-			fcolour = vec4(local_time, local_time, local_time, local_time);
+			fcolour = vec4(flocal_time, flocal_time, flocal_time, 1);
 		}
 	*/
+
 
 	//colour vertices by azimuth to test correct azimuth calculation
 	//fcolour = vec4(azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718, 1);

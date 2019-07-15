@@ -56,7 +56,11 @@ void main()
 	float temp = texture(thermaltexture, flocal_time).r;
 
 	//Output colour
-	outputColor= Colour_Greyscale(temp, 80, 400); //Linear greyscale with 40K as black and 400K as white.
+	if (flocal_time > 1 || flocal_time < 0)
+		outputColor = vec4(1, 0, 1, 1);
+	else
+		outputColor= Colour_Greyscale(temp, 80, 450); //Linear greyscale with 40K as black and 400K as white.
+
 
 	//outputColor = vec4(flocal_time, 0, 0, 1);
 }
