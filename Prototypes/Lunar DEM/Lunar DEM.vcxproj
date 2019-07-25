@@ -129,6 +129,12 @@
     <ClCompile Include="..\..\common\src\cube.cpp" />
     <ClCompile Include="..\..\common\src\shader.cpp" />
     <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="DEM_terrain.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
