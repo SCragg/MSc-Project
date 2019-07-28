@@ -33,9 +33,10 @@ private:
 	void(*keyCallBack)(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool running;
 	GLFWwindow* window;
+	GUI* gui;
 
 public:
-	GLWrapper(int width, int height, const char *title);
+	GLWrapper(int width, int height, const char *title, GUI* gui);
 	~GLWrapper();
 
 	void setFPS(double fps) {

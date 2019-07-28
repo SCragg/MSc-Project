@@ -13,13 +13,14 @@ however I have removed the load shader functions and have put them in to their o
 using namespace std;
 
 /* Constructor for wrapper object */
-GLWrapper::GLWrapper(int width, int height, const char *title) {
+GLWrapper::GLWrapper(int width, int height, const char *title, GUI* gui) {
 
 	this->width = width;
 	this->height = height;
 	this->title = title;
 	this->fps = 60;
 	this->running = true;
+	this->gui = gui;
 
 	/* Initialise GLFW and exit if it fails */
 	if (!glfwInit()) 
@@ -150,7 +151,7 @@ int GLWrapper::eventLoop()
 
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		*/
-
+		gui->Render();
 
 		// Swap buffers
 		glfwSwapBuffers(window);

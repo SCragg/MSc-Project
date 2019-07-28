@@ -380,17 +380,6 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 		cout << "Hour angle: " << HourAngle << " degrees. \n";
 	}
 
-	/*
-	//Move light position
-	//if (action != GLFW_PRESS) return;
-	if (key == 'O') lightx += 1.0f;
-	if (key == 'P') lightx -= 1.0f;
-	if (key == 'K') lighty += 1.0f;
-	if (key == 'L') lighty -= 1.0f;
-	if (key == 'N')	lightz += 1.0f;
-	if (key == 'M') lightz -= 1.0f;
-	*/
-
 	//Shows/hides normal
 	if (key == 'V' && action == GLFW_PRESS)
 	{
