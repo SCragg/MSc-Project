@@ -28,7 +28,7 @@ private:
 	double fps;
 	void(*error_callback)(int error, const char* description);
 	void(*shader)();
-	void(*renderer)();
+	void(*renderer)(GUI* gui);
 	void(*reshape)(GLFWwindow* window, int w, int h);
 	void(*keyCallBack)(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool running;
@@ -46,7 +46,7 @@ public:
 	void DisplayVersion();
 
 	/* Callback registering functions */
-	void setRenderer(void(*f)());
+	void setRenderer(void(*f)(GUI* gui));
 	void setReshapeCallback(void(*f)(GLFWwindow* window, int w, int h));
 	void setKeyCallback(void(*f)(GLFWwindow* window, int key, int scancode, int action, int mods));
 	void setErrorCallback(void(*f)(int error, const char* description));

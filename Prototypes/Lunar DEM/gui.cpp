@@ -6,7 +6,7 @@ void GUI::Initialise(GLFWwindow* window)
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
 	// Setup Dear ImGui style
@@ -39,9 +39,10 @@ void GUI::Render()
 
 		if (ImGui::Button("Change shader"))
 		{
-			//Insert code to deal with shader changing
-			ImGui::Text("Current Shader");
+			nextshader();
 		}
+		//Insert code to deal with shader changing
+		ImGui::Text(Shaders[currentshader].GetName().c_str());
 
 		/*
 		//if current shader is thermal include button to change colour type
@@ -54,9 +55,18 @@ void GUI::Render()
 		*/
 
 		ImGui::End();
+
+		bool showwindow = true;
+		ImGui::ShowDemoWindow(&showwindow);
 	}
 
 	//Gui functions before here
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void GUI::nextshader()
+{
+	if (currentshader < Shaders.size() - 1) currentshader++;
+	else currentshader = 0;
 }

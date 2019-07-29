@@ -97,7 +97,7 @@ int GLWrapper::eventLoop()
 	{
 		
 		// Call function to draw your graphics
-		renderer();
+		renderer(gui);
 
 		static bool show_demo_window = false;
 		static bool show_another_window = false;
@@ -172,7 +172,7 @@ void GLWrapper::setErrorCallback(void(*func)(int error, const char* description)
 }
 
 /* Register a display function that renders in the window */
-void GLWrapper::setRenderer(void(*func)()) {
+void GLWrapper::setRenderer(void(*func)(GUI *gui)) {
 	this->renderer = func;
 }
 
