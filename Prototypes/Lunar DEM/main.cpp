@@ -1,4 +1,4 @@
-/* 
+﻿/* 
 
 Lunar DEM prototype - Sean Cragg 01/05/2019
 
@@ -62,6 +62,7 @@ const GLint offset_normalmatrix = 192;
 GLuint lightdirID;
 GLuint lamb_lightdirID;
 GLuint therm1_lightdirID, therm1_albedoID, therm1_solarID, therm1_emissID;
+GLuint therm1_globaltimeID;
 
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
@@ -104,6 +105,7 @@ void init(GLWrapper *glw)
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
 	LunarTerrain->generateTerrain();
 	LunarTerrain->createObject();
+	LunarTerrain->setTexture(2000, "..\\..\\Textures\\Thermal Profile 1.txt");
 
 	//Create cube
 	aCube.makeCube();
@@ -198,6 +200,7 @@ void init(GLWrapper *glw)
 	therm1_solarID = glGetUniformLocation(terrainShaders[2].ID, "solar_constant");
 	therm1_emissID = glGetUniformLocation(terrainShaders[2].ID, "emissivity");
 	therm1_albedoID = glGetUniformLocation(terrainShaders[2].ID, "albedo");
+	therm1_globaltimeID = glGetUniformLocation(terrainShaders[2].ID, "global_time");
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -213,7 +216,7 @@ void display(GUI* gui)
 	/* Enable depth test  */
 	glEnable(GL_DEPTH_TEST);
 
-	// Projection matrix : 30� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units - from lab example
+	// Projection matrix : 30° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units - from lab example
 	mat4 projection = perspective(radians(30.0f), aspect_ratio, 0.1f, 200.0f);
 
 	// Camera matrix
@@ -282,6 +285,11 @@ void display(GUI* gui)
 			glUniform1f(therm1_albedoID, 0.08); //Albedo of 0.08
 			glUniform1f(therm1_emissID, 0.95); //Emissivity of 0.95
 			glUniform1f(therm1_solarID, 1370); //Solar Constant 1370
+			/*
+				$"��$"%%� MOVE AROUND FOR FINAL BUILD AND REMOVE PREVIOUS UNIFORMS �$%"�$%"�$%
+				 testing only, solar constant etc only needed for original prototype
+			*/
+			glUniform1f(therm1_globaltimeID, radians(HourAngle) / 6.28318530718);
 
 		}
 		LunarTerrain->drawTerrain(drawmode);
