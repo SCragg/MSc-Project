@@ -12,6 +12,13 @@ however I have removed the shader loading functions and have put them in to thei
 #include <glload/gl_load.h>
 #include <GLFW/glfw3.h>
 
+// Include Dear ImGUI
+#include <ImGUI/imgui.h>
+#include  <ImGUI/imgui_impl_glfw.h>
+#include  <ImGUI/imgui_impl_opengl3.h>
+
+#include "gui.h"
+
 class GLWrapper {
 private:
 

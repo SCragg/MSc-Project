@@ -4,6 +4,8 @@ Lunar DEM prototype - Sean Cragg 01/05/2019
 
 main.cpp
 
+//
+
 */
 
 //Linking to libraries
@@ -423,7 +425,8 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 /* Entry point of program */
 int main(int argc, char* argv[])
 {
-	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM");;
+	GUI *gui = new GUI;
+	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM", gui);
 
 	if (!ogl_LoadFunctions())
 	{
@@ -440,9 +443,12 @@ int main(int argc, char* argv[])
 	glw->DisplayVersion();
 
 	init(glw);
-
+	GUI::Initialise(glw->getWindow());
+	
 	glw->eventLoop();
-
+	
+	GUI::Cleanup();
 	delete(glw);
+	
 	return 0;
 }
