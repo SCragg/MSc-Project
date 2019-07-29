@@ -31,7 +31,11 @@ public:
 	// constructors
 	Shader();
 	//This will call loadShader in constructor
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(string type, const char* vertexPath, const char* fragmentPath);
+
+	//Set/get name
+	void SetName(string type) { name = type; return; }
+	string GetName() const { return name; }
 
 	// use/activate the shader: taken from https://learnopengl.com/Getting-started/Shaders
 	void use();
@@ -46,6 +50,7 @@ public:
 	void setFloat(const std::string &name, float value) const;
 
 private:
+	string name;
 	/* Shader build and file read functions - taken from wrapper_GLFW*/
 	GLuint BuildShader(GLenum eShaderType, const string &shaderText);
 	string readFile(const char *filePath);

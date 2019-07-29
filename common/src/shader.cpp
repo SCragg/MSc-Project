@@ -10,12 +10,10 @@ which are used within the mesh and model classes and for general functionality.
 
 #include "shader.h"
 
-Shader::Shader()
-{
+Shader::Shader() : name("")
+{}
 
-}
-
-Shader::Shader(const char* vertexPath, const char* fragmentPath)
+Shader::Shader(string type, const char* vertexPath, const char* fragmentPath): name(type)
 {
 	LoadShader(vertexPath, fragmentPath);
 }
