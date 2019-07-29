@@ -131,6 +131,7 @@
     <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
     <ClCompile Include="DEM_terrain.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="thermal_texture1D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Basic.frag" />
@@ -146,6 +147,8 @@
     <None Include="..\..\shaders\Thermal_1.vert" />
     <None Include="..\..\shaders\Thermal_2.frag" />
     <None Include="..\..\shaders\Thermal_2.vert" />
+    <None Include="..\..\shaders\Thermal_Texture.frag" />
+    <None Include="..\..\shaders\Thermal_Texture.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h" />

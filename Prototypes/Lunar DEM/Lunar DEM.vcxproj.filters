@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\common\src\cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="thermal_texture1D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Proto1.frag">
@@ -69,6 +72,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\..\shaders\Thermal_2.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Thermal_Texture.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Thermal_Texture.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
