@@ -136,7 +136,7 @@ void init(GLWrapper *glw)
 
 	try
 	{
-		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_2.vert", "..\\..\\shaders\\Thermal_2.frag"));
+		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_Texture.frag"));
 	}
 	catch (exception &e)
 	{
@@ -289,7 +289,7 @@ void display(GUI* gui)
 				$"��$"%%� MOVE AROUND FOR FINAL BUILD AND REMOVE PREVIOUS UNIFORMS �$%"�$%"�$%
 				 testing only, solar constant etc only needed for original prototype
 			*/
-			glUniform1f(therm1_globaltimeID, radians(HourAngle) / 6.28318530718);
+			glUniform1f(therm1_globaltimeID, gui->get_time());
 
 		}
 		LunarTerrain->drawTerrain(drawmode);

@@ -99,9 +99,11 @@ int GLWrapper::eventLoop()
 		// Call function to draw your graphics
 		renderer(gui);
 
+		/*
 		static bool show_demo_window = false;
 		static bool show_another_window = false;
 		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		*/
 
 		/*
 		// Start the Dear ImGui frame
