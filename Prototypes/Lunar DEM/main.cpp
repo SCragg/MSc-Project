@@ -1,10 +1,8 @@
-ï»¿/* 
+/* 
 
 Lunar DEM prototype - Sean Cragg 01/05/2019
 
 main.cpp
-
-//
 
 */
 
@@ -37,7 +35,6 @@ also includes the OpenGL extension initialisation*/
 //std lib includes
 #include <iostream>
 #include <stack>
-#include <utility>
 
 //Variable Declarations
 /* Position and view globals */
@@ -113,19 +110,8 @@ void init(GLWrapper *glw)
 	/* Load terrain shaders in to shader vector */
 	try
 	{
-		terrainShaders.push_back(Shader("Hapke", "..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag"));
-	}
-	
-	catch (exception &e)
-	{
-		cout << "Caught exception: " << e.what() << endl;
-		cin.ignore();
-		exit(0);
-	}
-
-	try
-	{
-		terrainShaders.push_back(Shader("Lambert", "..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Lambert.frag"));
+		terrainShaders.push_back(Shader());
+		terrainShaders[0].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Hapke.frag");
 	}
 	catch (exception &e)
 	{
@@ -136,7 +122,20 @@ void init(GLWrapper *glw)
 
 	try
 	{
-		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_2.vert", "..\\..\\shaders\\Thermal_2.frag"));
+		terrainShaders.push_back(Shader());
+		terrainShaders[1].LoadShader("..\\..\\shaders\\Hapke.vert", "..\\..\\shaders\\Lambert.frag");
+	}
+	catch (exception &e)
+	{
+		cout << "Caught exception: " << e.what() << endl;
+		cin.ignore();
+		exit(0);
+	}
+
+	try
+	{
+		terrainShaders.push_back(Shader());
+		terrainShaders[2].LoadShader("..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_Texture.frag");
 	}
 	catch (exception &e)
 	{
@@ -149,7 +148,6 @@ void init(GLWrapper *glw)
 	try
 	{
 		normalShader.LoadShader("..\\..\\shaders\\show_normals.vert", "..\\..\\shaders\\show_normals.frag", "..\\..\\shaders\\show_normals.geom");
-		normalShader.SetName("Normal");
 	}
 	catch (exception &e)
 	{
@@ -161,7 +159,6 @@ void init(GLWrapper *glw)
 	try
 	{
 		cubeShader.LoadShader("..\\..\\shaders\\Basic.vert", "..\\..\\shaders\\Basic.frag");
-		cubeShader.SetName("Cube");
 	}
 	catch (exception &e)
 	{
@@ -205,7 +202,7 @@ void init(GLWrapper *glw)
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
 class because we registered display as a callback function */
-void display(GUI* gui)
+void display()
 {
 	/* Define the background colour */
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -216,7 +213,7 @@ void display(GUI* gui)
 	/* Enable depth test  */
 	glEnable(GL_DEPTH_TEST);
 
-	// Projection matrix : 30Â° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units - from lab example
+	// Projection matrix : 30° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units - from lab example
 	mat4 projection = perspective(radians(30.0f), aspect_ratio, 0.1f, 200.0f);
 
 	// Camera matrix
@@ -229,11 +226,11 @@ void display(GUI* gui)
 	view = translate(view, vec3(move_x, move_y, move_z));
 
 	// Define light direction using hour angle
-	vec4 lightdirection = rotate(mat4(1.0f), (gui->get_time() * 6.28318530718f) , vec3(0, 0, 1)) * vec4(0, 1, 0, 1);
+	vec4 lightdirection = rotate(mat4(1.0f), radians(HourAngle), vec3(0, 0, 1)) * vec4(0, 1, 0, 1);
 
 	// Send our projection and view uniforms and light position to the shader
-	terrainShaders[gui->get_currentshader()].use();
-	switch (gui->get_currentshader())
+	terrainShaders[currentterrainshader].use();
+	switch (currentterrainshader)
 	{
 	case 0:
 		glUniform4fv(lightdirID, 1, value_ptr(lightdirection));
@@ -278,18 +275,18 @@ void display(GUI* gui)
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		//Draw terrain
-		terrainShaders[gui->get_currentshader()].use();
-		if (gui->get_currentshader() == 2)
+		terrainShaders[currentterrainshader].use();
+		if (currentterrainshader == 2)
 		{
 			//If thermal shader send uniforms:
 			glUniform1f(therm1_albedoID, 0.08); //Albedo of 0.08
 			glUniform1f(therm1_emissID, 0.95); //Emissivity of 0.95
 			glUniform1f(therm1_solarID, 1370); //Solar Constant 1370
 			/*
-				$"ï¿½ï¿½$"%%ï¿½ MOVE AROUND FOR FINAL BUILD AND REMOVE PREVIOUS UNIFORMS ï¿½$%"ï¿½$%"ï¿½$%
+				$"££$"%%£ MOVE AROUND FOR FINAL BUILD AND REMOVE PREVIOUS UNIFORMS £$%"£$%"£$%
 				 testing only, solar constant etc only needed for original prototype
 			*/
-			glUniform1f(therm1_globaltimeID, radians(HourAngle) / 6.28318530718);
+			glUniform1f(therm1_globaltimeID, radians(HourAngle)/ 6.28318530718); 
 
 		}
 		LunarTerrain->drawTerrain(drawmode);
@@ -389,6 +386,17 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 		cout << "Hour angle: " << HourAngle << " degrees. \n";
 	}
 
+	/*
+	//Move light position
+	//if (action != GLFW_PRESS) return;
+	if (key == 'O') lightx += 1.0f;
+	if (key == 'P') lightx -= 1.0f;
+	if (key == 'K') lighty += 1.0f;
+	if (key == 'L') lighty -= 1.0f;
+	if (key == 'N')	lightz += 1.0f;
+	if (key == 'M') lightz -= 1.0f;
+	*/
+
 	//Shows/hides normal
 	if (key == 'V' && action == GLFW_PRESS)
 	{
@@ -415,8 +423,7 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 /* Entry point of program */
 int main(int argc, char* argv[])
 {
-	GUI *gui = new GUI(terrainShaders);
-	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM", gui);
+	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM");;
 
 	if (!ogl_LoadFunctions())
 	{
@@ -433,12 +440,9 @@ int main(int argc, char* argv[])
 	glw->DisplayVersion();
 
 	init(glw);
-	GUI::Initialise(glw->getWindow());
-	
+
 	glw->eventLoop();
-	
-	GUI::Cleanup();
+
 	delete(glw);
-	
 	return 0;
 }
