@@ -30,25 +30,6 @@
     <ClCompile Include="..\..\common\src\cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_impl_glfw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -90,6 +71,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\..\shaders\Thermal_2.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Thermal_Texture.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\..\shaders\Thermal_Texture.vert">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
