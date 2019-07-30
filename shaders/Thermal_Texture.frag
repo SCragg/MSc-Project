@@ -4,6 +4,7 @@
 //inputs
 in vec3 fNormal;
 in vec3 fLightDir;
+flat in float flocal_time;
 
 //Uniforms
 uniform float global_time;
@@ -21,32 +22,10 @@ vec3 N = normalize(fNormal);
 
 void main()
 {
-	//Calculations for local time
-	float local_slope;
-	local_slope = tan(acos(dot(N, vec3(0,1,0))));
-
-	//remove height and normalise
-	vec2 heading_vec = vec2(N.x, N.z);
-	normalize(heading_vec);
-
-	//calcuate slope azimuth angle
-	float azimuth = atan(heading_vec.x, heading_vec.y);
-	if (azimuth < 0)
-	{
-		azimuth = 6.28318530718 + azimuth; // convert to range 0 - 2pi
-	}
-
-	//corrction equation
-	float local_time = global_time + (0.5 / PI) * atan(local_slope * sin(azimuth));
-
-	//correct value to range 0 - 1 and output to frag shader
-	if (local_time < 0)
-		local_time = local_time + 1;
-	else if (local_time > 1)
-		local_time = local_time - 1;
+	
 
 	//Get temp from texture
-	float temp = texture(thermaltexture, local_time).r;
+	float temp = texture(thermaltexture, flocal_time).r;
 
 	//Output colour
 	outputColor= Colour_False(temp, 70, 420); //Linear greyscale with 40K as black and 400K as white.
