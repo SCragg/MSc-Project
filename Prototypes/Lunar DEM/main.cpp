@@ -99,8 +99,9 @@ void init(GLWrapper *glw)
 
 	//Create Lunar DEM
 	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
+	LunarTerrain->load_DEM();
 	LunarTerrain->generateTerrain_flat();
-	LunarTerrain->generateTerrain_sphere();
+	//LunarTerrain->generateTerrain_sphere();
 	LunarTerrain->createObject();
 
 	//Create cube

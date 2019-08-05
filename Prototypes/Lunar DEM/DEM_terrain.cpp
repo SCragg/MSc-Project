@@ -51,77 +51,90 @@ void DEM_terrain::createObject()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void DEM_terrain::generateTerrain_flat()
+bool DEM_terrain::load_DEM()
 {
-	//Arrays for vertex information
-	vertices = new glm::vec4[numvertices];
-	normals = new glm::vec3[numvertices];
-	colours = new glm::vec4[numvertices];
+	if (dem_data != nullptr) return false;
 
-	//Starting position and step size
-	GLfloat xpos = -X_size / 2.f;
-	GLfloat xstep = X_size / X_res;
-	GLfloat zpos_start = -Z_size / 2.f;
-	GLfloat zstep = Z_size / Z_res;
+	dem_data = new float[numvertices];
 
 	//Open file
 	if (!openFile())
 	{
 		std::cout << "Could not open DEM file at " << '\'' << filepath << "'. \n";
-		return;
+		return false;
 	}
-	else
+
+	//read DEM file to dem_data
+	char* buffer = new char[4];
+	char* value = new char[4];
+
+	int counter = 0;
+	for (GLuint x = 0; x < X_res; x++)
 	{
-		char* buffer = new char[4];
-		char* value = new char[4];
-		GLfloat height;
-		//Vertex positions for flat surface
-		for (GLuint x = 0; x < X_res; x++)
+		for (GLuint z = 0; z < Z_res; z++)
 		{
-			GLfloat zpos = zpos_start;
-			for (GLuint z = 0; z < Z_res; z++)
-			{
-				//Decode binary integers
-				DEMfile.read(buffer, sizeof(value));
-				value[0] = buffer[3];
-				value[1] = buffer[2];
-				value[2] = buffer[1];
-				value[3] = buffer[0];
-				height = *(float*)value;
-
-				//Add to buffer
-				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
-				normals[x * X_res + z] = glm::vec3(0, 0, 0);
-				colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
-				zpos += zstep;
-			}
-			xpos += xstep;
+			//Decode binary integers
+			DEMfile.read(buffer, sizeof(value));
+			value[0] = buffer[3];
+			value[1] = buffer[2];
+			value[2] = buffer[1];
+			value[3] = buffer[0];
+			dem_data[counter] = *(float*)value;
+			counter++;
 		}
-		delete buffer;
-		delete value;
-		DEMfile.close(); //close file stream
+	}
 
-		/* Define vertices for triangle strips */
-		for (GLuint x = 0; x < X_res - 1; x++)
-		{
-			GLuint top = x * Z_res;
-			GLuint bottom = top + Z_res;
-			for (GLuint z = 0; z < Z_res; z++)
-			{
-				elements.push_back(top++);
-				elements.push_back(bottom++);
-			}
-		}
+	//Clean up
+	delete buffer;
+	delete value;
+	DEMfile.close();
 
-		// Calculate the normals by averaging cross products for all triangles 
-		calculateNormals();
+	return true;
+}
 
+
+void DEM_terrain::generateTerrain_flat()
+{
+	//Check if dem_data is pointing to data;
+	if (dem_data == nullptr)
+	{
+		std::cout << "DEM data has not been loaded... \n";
 		return;
 	}
+
+	if (projection != nullptr) delete projection;
+	projection = new Cartesian_Projection;
+
+	//Arrays for vertex information
+	vertices = new glm::vec4[numvertices];
+	normals = new glm::vec3[numvertices];
+	colours = new glm::vec4[numvertices];
+
+	projection->Project_DEM(this);
+
+	/* Define vertices for triangle strips */
+	for (GLuint x = 0; x < X_res - 1; x++)
+	{
+		GLuint top = x * Z_res;
+		GLuint bottom = top + Z_res;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			elements.push_back(top++);
+			elements.push_back(bottom++);
+		}
+	}
+
+	// Calculate the normals by averaging cross products for all triangles 
+	calculateNormals();
+	
+	delete projection;
+	return;
 }
 
 /*
-Uses inverse mercator equation
+Must call generateTerrain_flat() first as it uses the extracted DEM data which is stored in vertices.
+
+Testing with equirectangular projection
 */
 void DEM_terrain::generateTerrain_sphere()
 {
@@ -132,14 +145,32 @@ void DEM_terrain::generateTerrain_sphere()
 	}
 	else
 	{
-		GLfloat radius = 20; //Will change this in the future to be a function parameter I think, still need to think controls through better
-		GLfloat lat_range = glm::radians(30.0f);
+		GLfloat radius = 1; //Will change this in the future to be a function parameter I think, still need to think controls through better
+		GLfloat lat_range = glm::radians(360.0f);
 
 		for (int i = 0; i < numvertices; i++)
 		{
+			/*
 			float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
 			float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
 			float R = (vertices[i][1]/(X_size / lat_range)) + radius;
+			*/
+
+			if (i % 50 == 0)
+				int breakpoint1 = 0;
+
+			glm::vec4 current_vert = vertices[i];
+
+			float longitude;
+			float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
+			if (temp_longitude < 0)
+				longitude = lat_range + temp_longitude;
+			else
+				longitude = temp_longitude;
+
+			float latitude = -((current_vert[2] / (Z_size / (lat_range/2))) - (lat_range / 4));
+			float R = 100;
+			int x = 0;
 
 			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
 

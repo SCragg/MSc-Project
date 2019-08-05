@@ -30,6 +30,9 @@
     <ClCompile Include="..\..\common\src\cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cartesian_Projection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Proto1.frag">
@@ -74,6 +77,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cartesian_Projection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Projection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReverseCylindrical_Projection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,6 +8,7 @@
 #include <fstream>
 #include <glm/glm.hpp>
 #include "wrapper_glfw.h"
+#include "Projection.h"
 
 class DEM_terrain
 {
@@ -18,6 +19,7 @@ public:
 	~DEM_terrain();
 
 	void createObject();
+	bool load_DEM();
 	void generateTerrain_flat();
 	void generateTerrain_sphere();
 	void drawTerrain(int drawmode);
@@ -32,6 +34,7 @@ private:
 	//DEM file
 	std::string filepath;
 	std::ifstream DEMfile;
+	float* dem_data;
 
 	//Vertex Data
 	GLuint numvertices;
@@ -49,6 +52,10 @@ private:
 	GLuint attrib_v_coord;
 	GLuint attrib_v_normal;
 	GLuint attrib_v_colour;
+
+	//Projections
+	Projection* projection = nullptr;
+	friend void Cartesian_Projection::Project_DEM(DEM_terrain* dem);
 
 	//Functions
 	bool openFile();
