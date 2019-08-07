@@ -84,13 +84,14 @@ This function is called before entering the main rendering loop. Initialisations
 void init(GLWrapper *glw)
 {
 	/* Set the view transformation controls to their initial values*/
-	angle_x = angle_y = angle_z = 0;
+	angle_y = angle_z = 0;
+	angle_x = -90;
 	angle_inc_x = angle_inc_y = angle_inc_z = 0;
 	move_x = 0;
-	move_y = -10;
-	move_z = -50;
+	move_y = 0; //-10
+	move_z = 0; //-50
 
-	model_scale = .2f;
+	model_scale = .002f; //0.2
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
 	//hour angle

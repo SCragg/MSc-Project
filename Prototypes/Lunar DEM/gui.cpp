@@ -56,8 +56,8 @@ void GUI::Render()
 
 		ImGui::End();
 
-		bool showwindow = true;
-		ImGui::ShowDemoWindow(&showwindow);
+		//bool showwindow = true;
+		//ImGui::ShowDemoWindow(&showwindow);
 	}
 
 	//Gui functions before here

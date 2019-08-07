@@ -21,11 +21,7 @@ layout (std140) uniform Matrices
 	mat3 normalmatrix;		//16 * 3		//192
 };
 
-/*
-Will need some form of time passed in to the shader, whether or not it should be passed in as time or light direction I am still not so sure, but as the daytime approximation
-uses angle of incidence which will also capture the effect of latitude, I will calculate light direction from time and solar declination in the application and pass it as a uniform.
-In the future when night temperature approximation becomes more refined I may also need time as a uniform.
-*/
+
 uniform vec4 lightdir;
 
 /*
@@ -38,8 +34,8 @@ Outputs to fragment shader - colour, normal, light direction
 */
 out vec3 fNormal;
 out vec3 fLightDir;
-out vec4 fcolour;
-flat out float flocal_time;
+//out vec4 fcolour;
+out float flocal_time;
 
 //Main
 void main()
@@ -48,6 +44,7 @@ void main()
 	fNormal = normalize(normal);
 	fLightDir = normalize(normalmatrix * lightdir.xyz);
 
+	/*
 	//Calculations for local time
 	float local_slope;
 	local_slope = tan(acos(dot(normalize(normal), vec3(0,1,0))));
@@ -73,6 +70,7 @@ void main()
 		flocal_time = local_time - 1;
 	else
 		flocal_time = local_time;
+	*/
 
 	/*
 		Below are lines of code for debugging purposes, enable to help with debugging
@@ -80,6 +78,7 @@ void main()
 
 	//flocal_time = global_time;
 
+	//Highlights if time
 	/*
 	if (flocal_time < 0 || flocal_time > 1)
 		{
