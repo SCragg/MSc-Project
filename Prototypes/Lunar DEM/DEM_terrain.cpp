@@ -103,6 +103,10 @@ void DEM_terrain::generateTerrain_flat()
 	}
 
 	//Arrays for vertex information
+	if (vertices) delete vertices;
+	if (normals) delete normals;
+	if (colours) delete colours;
+
 	vertices = new glm::vec4[numvertices];
 	normals = new glm::vec3[numvertices];
 	colours = new glm::vec4[numvertices];
@@ -155,34 +159,43 @@ Testing with equirectangular projection
 */
 void DEM_terrain::generateTerrain_sphere()
 {
-	if (vertices == nullptr)
+	//Check if dem_data is pointing to data;
+	if (dem_data == nullptr)
 	{
-		//std::cout << "Error vertices not defined!" << std::endl;
+		std::cout << "DEM data has not been loaded... \n";
 		return;
 	}
-	else
+
+	if (vertices) delete vertices;
+	if (normals) delete normals;
+	if (colours) delete colours;
+
+	vertices = new glm::vec4[numvertices];
+	normals = new glm::vec3[numvertices];
+	colours = new glm::vec4[numvertices];
+
+	GLfloat radius = 1; //Will change this in the future to be a function parameter I think, still need to think controls through better
+	GLfloat lat_range = glm::radians(360.0f);
+
+	//Starting position and step size
+	GLfloat xpos = -X_size / 2.f;
+	GLfloat xstep = X_size / X_res;
+	GLfloat zpos_start = -Z_size / 2.f;
+	GLfloat zstep = Z_size / Z_res;
+
+	int counter = 0;
+	//Vertex positions for flat surface
+	for (GLuint x = 0; x < X_res; x++)
 	{
-		if (normals)
+		GLfloat zpos = zpos_start;
+		for (GLuint z = 0; z < Z_res; z++)
 		{
-			delete normals;
-		}
-		normals = new glm::vec3[numvertices];
-		GLfloat radius = 1; //Will change this in the future to be a function parameter I think, still need to think controls through better
-		GLfloat lat_range = glm::radians(360.0f);
+			//Add to buffer
+			glm::vec4 current_vert = glm::vec4(xpos, dem_data[counter], zpos, 1); //current vert if it was a flat projection
+			normals[x * X_res + z] = glm::vec3(0, 0, 0);
+			colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
 
-		for (int i = 0; i < numvertices; i++)
-		{
-			/*
-			float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
-			float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
-			float R = (vertices[i][1]/(X_size / lat_range)) + radius;
-			*/
-
-			if (i % 50 == 0)
-				int breakpoint1 = 0;
-
-			glm::vec4 current_vert = vertices[i];
-
+			//Projection code
 			float longitude;
 			float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
 			if (temp_longitude < 0)
@@ -190,16 +203,50 @@ void DEM_terrain::generateTerrain_sphere()
 			else
 				longitude = temp_longitude;
 
-			float latitude = -((current_vert[2] / (Z_size / (lat_range/2))) - (lat_range / 4));
-			float R = 100;
+			float latitude = -((current_vert[2] / (Z_size / (lat_range / 2))) - (lat_range / 4));
+			float R = X_size / (2 * 3.14159265359) + current_vert[1];
 			int x = 0;
 
 			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
 
-			vertices[i] = new_coord;
-			normals[i] = glm::vec3(0, 0, 0);
+			vertices[counter] = new_coord;
+			zpos += zstep;
+			counter++;
 		}
+		xpos += xstep;
 	}
+
+	/*
+	for (int i = 0; i < numvertices; i++)
+	{
+		//CAN'T REMEMBER WHAT THIS FOR
+		//float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
+		//float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
+		//float R = (vertices[i][1]/(X_size / lat_range)) + radius;
+		
+
+		if (i % 50 == 0)
+			int breakpoint1 = 0;
+
+		glm::vec4 current_vert = vertices[i];
+
+		float longitude;
+		float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
+		if (temp_longitude < 0)
+			longitude = lat_range + temp_longitude;
+		else
+			longitude = temp_longitude;
+
+		float latitude = -((current_vert[2] / (Z_size / (lat_range/2))) - (lat_range / 4));
+		float R = X_size / (2 * 3.14159265359) + current_vert[1];
+		int x = 0;
+
+		glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
+
+		vertices[i] = new_coord;
+		normals[i] = glm::vec3(0, 0, 0);
+	}
+	*/
 
 	/* Define vertices for triangle strips */
 	for (GLuint x = 0; x < X_res - 1; x++)
