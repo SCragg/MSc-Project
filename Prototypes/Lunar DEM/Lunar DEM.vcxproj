@@ -129,7 +129,6 @@
     <ClCompile Include="..\..\common\src\cube.cpp" />
     <ClCompile Include="..\..\common\src\shader.cpp" />
     <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
-    <ClCompile Include="Cartesian_Projection.cpp" />
     <ClCompile Include="DEM_terrain.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
@@ -149,10 +148,7 @@
     <None Include="..\..\shaders\Thermal_2.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cartesian_Projection.h" />
     <ClInclude Include="DEM_terrain.h" />
-    <ClInclude Include="Projection.h" />
-    <ClInclude Include="ReverseCylindrical_Projection.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

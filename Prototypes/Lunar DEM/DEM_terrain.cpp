@@ -102,15 +102,33 @@ void DEM_terrain::generateTerrain_flat()
 		return;
 	}
 
-	if (projection != nullptr) delete projection;
-	projection = new Cartesian_Projection;
-
 	//Arrays for vertex information
 	vertices = new glm::vec4[numvertices];
 	normals = new glm::vec3[numvertices];
 	colours = new glm::vec4[numvertices];
 
-	projection->Project_DEM(this);
+	//Starting position and step size
+	GLfloat xpos = -X_size / 2.f;
+	GLfloat xstep = X_size / X_res;
+	GLfloat zpos_start = -Z_size / 2.f;
+	GLfloat zstep = Z_size / Z_res;
+
+	int counter = 0;
+	//Vertex positions for flat surface
+	for (GLuint x = 0; x < X_res; x++)
+	{
+		GLfloat zpos = zpos_start;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			//Add to buffer
+			vertices[x * X_res + z] = glm::vec4(xpos, dem_data[counter], zpos, 1);
+			normals[x * X_res + z] = glm::vec3(0, 0, 0);
+			colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
+			zpos += zstep;
+			counter++;
+		}
+		xpos += xstep;
+	}
 
 	/* Define vertices for triangle strips */
 	for (GLuint x = 0; x < X_res - 1; x++)
@@ -126,8 +144,7 @@ void DEM_terrain::generateTerrain_flat()
 
 	// Calculate the normals by averaging cross products for all triangles 
 	calculateNormals();
-	
-	delete projection;
+
 	return;
 }
 
@@ -145,6 +162,11 @@ void DEM_terrain::generateTerrain_sphere()
 	}
 	else
 	{
+		if (normals)
+		{
+			delete normals;
+		}
+		normals = new glm::vec3[numvertices];
 		GLfloat radius = 1; //Will change this in the future to be a function parameter I think, still need to think controls through better
 		GLfloat lat_range = glm::radians(360.0f);
 
@@ -175,6 +197,7 @@ void DEM_terrain::generateTerrain_sphere()
 			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
 
 			vertices[i] = new_coord;
+			normals[i] = glm::vec3(0, 0, 0);
 		}
 	}
 

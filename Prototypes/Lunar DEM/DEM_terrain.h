@@ -8,7 +8,6 @@
 #include <fstream>
 #include <glm/glm.hpp>
 #include "wrapper_glfw.h"
-#include "Projection.h"
 
 class DEM_terrain
 {
@@ -52,10 +51,6 @@ private:
 	GLuint attrib_v_coord;
 	GLuint attrib_v_normal;
 	GLuint attrib_v_colour;
-
-	//Projections
-	Projection* projection = nullptr;
-	friend void Cartesian_Projection::Project_DEM(DEM_terrain* dem);
 
 	//Functions
 	bool openFile();

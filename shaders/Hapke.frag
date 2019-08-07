@@ -49,7 +49,7 @@ void main()
 		//third part: {[i + B(g)]P(g) + H(Uo)H(u) -1)
 		float third = (1 + Hapke_B(absg, h)) * pg + Hapke_H(Uo, w) * Hapke_H(U, w) - 1;
 
-		Hapke = first * second * third * 4;
+		Hapke = first * second * third * 10;
 	}
 
 	//Outputs
