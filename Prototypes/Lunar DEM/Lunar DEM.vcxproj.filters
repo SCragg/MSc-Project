@@ -30,6 +30,12 @@
     <ClCompile Include="..\..\common\src\cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="flat_terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere_terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Proto1.frag">
@@ -74,6 +80,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DEM_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flat_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere_terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

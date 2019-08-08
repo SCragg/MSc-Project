@@ -29,7 +29,8 @@ also includes the OpenGL extension initialisation*/
 
 // Include headers for our objects
 #include "shader.h"
-#include "DEM_terrain.h"
+#include "flat_terrain.h"
+#include "sphere_terrain.h"
 #include "cube.h"
 
 //std lib includes
@@ -63,7 +64,7 @@ GLuint therm1_lightdirID, therm1_albedoID, therm1_solarID, therm1_emissID;
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
 vector<Shader> terrainShaders;
-DEM_terrain* LunarTerrain;
+DEM_terrain *LunarTerrain, *LunarTerrainFlat;
 Cube aCube;
 
 //Flags
@@ -86,7 +87,7 @@ void init(GLWrapper *glw)
 	move_y = -10;
 	move_z = -50;
 
-	model_scale = .2f;
+	model_scale = .000002f;
 	aspect_ratio = 1024.f / 768.f;	// Initial aspect ratio from window size - from lab examples
 
 	//hour angle
@@ -98,11 +99,15 @@ void init(GLWrapper *glw)
 	currentterrainshader = 0;
 
 	//Create Lunar DEM
-	LunarTerrain = new DEM_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
+	LunarTerrain = new Sphere_terrain(5760, 2880, "..\\..\\DEMs\\2\\lunar_16.dem", 5760*1895.21, 2880*1895.21); 
 	LunarTerrain->load_DEM();
-	LunarTerrain->generateTerrain_flat();
-	//LunarTerrain->generateTerrain_sphere();
+	LunarTerrain->generate_terrain();
 	LunarTerrain->createObject();
+
+	LunarTerrainFlat = new Flat_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
+	LunarTerrainFlat->load_DEM();
+	LunarTerrainFlat->generate_terrain();
+	LunarTerrainFlat->createObject();
 
 	//Create cube
 	aCube.makeCube();
@@ -354,8 +359,8 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'T' && action == GLFW_RELEASE) angle_inc_z = 0;
 	if (key == 'Y') angle_inc_z += 0.1f;
 	if (key == 'Y' && action == GLFW_RELEASE) angle_inc_z = 0;
-	if (key == 'A') model_scale -= 0.004f;
-	if (key == 'S') model_scale += 0.004f;
+	if (key == 'A') model_scale -= 0.000002f;
+	if (key == 'S') model_scale += 0.000002f;
 
 	//Moves camera along x, y, z axes
 	if (key == GLFW_KEY_UP) move_y -= 1.0;
