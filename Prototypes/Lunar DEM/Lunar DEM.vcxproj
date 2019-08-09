@@ -129,10 +129,18 @@
     <ClCompile Include="..\..\common\src\cube.cpp" />
     <ClCompile Include="..\..\common\src\shader.cpp" />
     <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="DEM_terrain.cpp" />
     <ClCompile Include="flat_terrain.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="sphere_terrain.cpp" />
+    <ClCompile Include="gui.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="thermal_texture1D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\shaders\Basic.frag" />
@@ -148,8 +156,11 @@
     <None Include="..\..\shaders\Thermal_1.vert" />
     <None Include="..\..\shaders\Thermal_2.frag" />
     <None Include="..\..\shaders\Thermal_2.vert" />
+    <None Include="..\..\shaders\Thermal_Texture.frag" />
+    <None Include="..\..\shaders\Thermal_Texture.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\common\include\gui.h" />
     <ClInclude Include="DEM_terrain.h" />
     <ClInclude Include="flat_terrain.h" />
     <ClInclude Include="sphere_terrain.h" />

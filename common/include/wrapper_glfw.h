@@ -12,6 +12,10 @@ however I have removed the shader loading functions and have put them in to thei
 #include <glload/gl_load.h>
 #include <GLFW/glfw3.h>
 
+// Include gui class
+#include "gui.h"
+
+
 class GLWrapper {
 private:
 
@@ -21,14 +25,15 @@ private:
 	double fps;
 	void(*error_callback)(int error, const char* description);
 	void(*shader)();
-	void(*renderer)();
+	void(*renderer)(GUI* gui);
 	void(*reshape)(GLFWwindow* window, int w, int h);
 	void(*keyCallBack)(GLFWwindow* window, int key, int scancode, int action, int mods);
 	bool running;
 	GLFWwindow* window;
+	GUI* gui;
 
 public:
-	GLWrapper(int width, int height, const char *title);
+	GLWrapper(int width, int height, const char *title, GUI* gui);
 	~GLWrapper();
 
 	void setFPS(double fps) {
@@ -38,7 +43,7 @@ public:
 	void DisplayVersion();
 
 	/* Callback registering functions */
-	void setRenderer(void(*f)());
+	void setRenderer(void(*f)(GUI* gui));
 	void setReshapeCallback(void(*f)(GLFWwindow* window, int w, int h));
 	void setKeyCallback(void(*f)(GLFWwindow* window, int key, int scancode, int action, int mods));
 	void setErrorCallback(void(*f)(int error, const char* description));

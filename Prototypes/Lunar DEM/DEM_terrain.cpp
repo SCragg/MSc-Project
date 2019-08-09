@@ -270,6 +270,8 @@ void DEM_terrain::generateTerrain_sphere()
 void DEM_terrain::drawTerrain(int drawmode)
 {
 	int size;	// Used to get the byte size of the element (vertex index) array
+
+	if (texture) glBindTexture(GL_TEXTURE_1D, texture->ID());
 	glBindVertexArray(vao);
 
 // Describe our vertices array to OpenGL (it can't guess its format automatically)
@@ -310,9 +312,7 @@ void DEM_terrain::drawTerrain(int drawmode)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
-	// Enable this line to show model in wireframe
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
+	//Drawmode 0 is filled render
 	if (drawmode == 0)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -323,6 +323,7 @@ void DEM_terrain::drawTerrain(int drawmode)
 			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
 		}
 	}
+	//Drawmode 1 is rendered as lines
 	else if (drawmode == 1)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -333,15 +334,9 @@ void DEM_terrain::drawTerrain(int drawmode)
 			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
 		}
 	}
+	//Drawmode 2 is rendered as points
 	else if (drawmode == 2)
-	{	/*
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		//glDrawArrays(GL_POINTS, 0, numvertices);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		*/
-		/* 
-		Draw the triangle strips - Less efficient to draw as triangle strips but wanted to rule out element order
-		*/
+	{
 		for (GLuint i = 0; i < X_res - 1; i++)
 		{
 			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
@@ -349,6 +344,24 @@ void DEM_terrain::drawTerrain(int drawmode)
 		}
 	}
 }
+
+
+//setTexture to 1D texture using width and filepath as inputs, file is text tab delimited file
+void DEM_terrain::setTexture(int width, std::string filepath)
+{
+	if (texture)
+	{
+		delete texture;
+	}
+
+	//Create new 1D texture object with width and filepath
+	texture = new Thermal_Texture1D(width, filepath);
+	texture->Read_data();
+	texture->Generate_texture();
+
+	return;
+}
+
 
 void DEM_terrain::setColour()
 {

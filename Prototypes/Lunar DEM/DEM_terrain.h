@@ -8,6 +8,7 @@
 #include <fstream>
 #include <glm/glm.hpp>
 #include "wrapper_glfw.h"
+#include "thermal_texture1D.h"
 
 class DEM_terrain
 {
@@ -22,6 +23,7 @@ public:
 	void generateTerrain_flat();
 	void generateTerrain_sphere();
 	virtual void drawTerrain(int drawmode) = 0;
+
 	void setColour();
 
 protected:
@@ -51,6 +53,9 @@ protected:
 	GLuint attrib_v_coord;
 	GLuint attrib_v_normal;
 	GLuint attrib_v_colour;
+
+	//Thermal Texture Object
+	Thermal_Texture1D* texture = nullptr;
 
 	//Functions
 	bool openFile();
