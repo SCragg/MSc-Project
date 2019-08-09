@@ -69,20 +69,23 @@ void Sphere_terrain::generate_terrain()
 		for (GLuint z = 0; z < Z_res; z++)
 		{
 			//Add to buffer
-			glm::vec4 current_vert = glm::vec4(xpos, dem_data[counter], zpos, 1); //current vert if it was a flat projection
+			glm::vec4 current_vert = glm::vec4(zpos, dem_data[counter], xpos, 1); //current vert if it was a flat projection
 			normals[counter] = glm::vec3(0, 0, 0);
-			colours[counter] = glm::vec4(0.55, 0.55, 0.55, 1);
+
+			//if (z == 0) colours[counter] = glm::vec4(1, 1, 0, 1); //Delete later
+			//else if (z == Z_res - 1) colours[counter] = glm::vec4(1, 0, 0, 1); //Delete later
+			colours[counter] = glm::vec4(0.65, 0.65, 0.65, 1);
 
 			//Projection code
 			float longitude;
-			float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
+			float temp_longitude = (current_vert[0] / (Z_size / lat_range)) / radius;
 			if (temp_longitude < 0)
 				longitude = lat_range + temp_longitude;
 			else
 				longitude = temp_longitude;
 
-			float latitude = -((current_vert[2] / (Z_size / (lat_range / 2))) - (lat_range / 4));
-			float R = X_size / (2 * 3.14159265359) + current_vert[1];
+			float latitude = -((current_vert[2] / (X_size / (lat_range / 2))) - (lat_range / 4));
+			float R = Z_size / (2 * 3.14159265359) + current_vert[1];
 			int x = 0;
 
 			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
@@ -94,48 +97,20 @@ void Sphere_terrain::generate_terrain()
 		xpos += xstep;
 	}
 
-	/*
-	for (int i = 0; i < numvertices; i++)
-	{
-		//CAN'T REMEMBER WHAT THIS FOR
-		//float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
-		//float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
-		//float R = (vertices[i][1]/(X_size / lat_range)) + radius;
-
-
-		if (i % 50 == 0)
-			int breakpoint1 = 0;
-
-		glm::vec4 current_vert = vertices[i];
-
-		float longitude;
-		float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
-		if (temp_longitude < 0)
-			longitude = lat_range + temp_longitude;
-		else
-			longitude = temp_longitude;
-
-		float latitude = -((current_vert[2] / (Z_size / (lat_range/2))) - (lat_range / 4));
-		float R = X_size / (2 * 3.14159265359) + current_vert[1];
-		int x = 0;
-
-		glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
-
-		vertices[i] = new_coord;
-		normals[i] = glm::vec3(0, 0, 0);
-	}
-	*/
-
 	/* Define vertices for triangle strips */
 	for (GLuint x = 0; x < X_res - 1; x++)
 	{
 		GLuint top = x * Z_res;
 		GLuint bottom = top + Z_res;
-		for (GLuint z = 0; z < Z_res; z++)
-		{
+		for (GLuint z = 0; z < Z_res; z++) //Initially z < Z_res
+		{	
 			elements.push_back(top++);
 			elements.push_back(bottom++);
 		}
+		/*//trying to close gap
+		elements.push_back(x * Z_res);
+		elements.push_back(top + Z_res);
+		*/	
 	}
 
 	// Calculate the normals by averaging cross products for all triangles 
@@ -194,9 +169,9 @@ void Sphere_terrain::drawTerrain(int drawmode)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		/* Draw the triangle strips */
-		for (GLuint i = 0; i < X_res - 1; i++)
+		for (GLuint i = 0; i < X_res-1; i++)
 		{
-			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
+			GLuint location = sizeof(GLuint) * (i * (Z_res * 2));
 			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
 		}
 	}
@@ -204,22 +179,15 @@ void Sphere_terrain::drawTerrain(int drawmode)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		/* Draw the triangle strips */
-		for (GLuint i = 0; i < X_res - 1; i++)
+		for (GLuint i = 0; i < X_res-1; i++)
 		{
 			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
 			glDrawElements(GL_TRIANGLE_STRIP, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
 		}
 	}
 	else if (drawmode == 2)
-	{	/*
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		//glDrawArrays(GL_POINTS, 0, numvertices);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-		*/
-		/*
-		Draw the triangle strips - Less efficient to draw as triangle strips but wanted to rule out element order
-		*/
-		for (GLuint i = 0; i < X_res - 1; i++)
+	{	
+		for (GLuint i = 0; i < X_res-1; i++)
 		{
 			GLuint location = sizeof(GLuint) * (i * Z_res * 2);
 			glDrawElements(GL_POINTS, Z_res * 2, GL_UNSIGNED_INT, (GLvoid*)(location));
@@ -255,8 +223,8 @@ void Sphere_terrain::calculateNormals()
 			AC = pos3 - pos1;
 
 			// Calculate the cross product - ensures correct cross product taken each time
-			if (tri % 2 == 0) cross_product = glm::normalize(glm::cross(AB, AC));
-			else cross_product = glm::normalize(glm::cross(AC, AB));
+			if (tri % 2 == 0) cross_product = glm::normalize(glm::cross(AC, AB));
+			else cross_product = glm::normalize(glm::cross(AB, AC));
 
 
 			// Add this normal to the vertex normal for all three vertices in the triangle

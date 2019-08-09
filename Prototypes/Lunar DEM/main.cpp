@@ -99,7 +99,7 @@ void init(GLWrapper *glw)
 	currentterrainshader = 0;
 
 	//Create Lunar DEM
-	LunarTerrain = new Sphere_terrain(5760, 2880, "..\\..\\DEMs\\2\\lunar_16.dem", 5760*1895.21, 2880*1895.21); 
+	LunarTerrain = new Sphere_terrain(2880, 5760, "..\\..\\DEMs\\2\\lunar_16.dem", 2880*1895.21, 5760 * 1895.21);
 	LunarTerrain->load_DEM();
 	LunarTerrain->generate_terrain();
 	LunarTerrain->createObject();
