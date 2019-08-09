@@ -23,6 +23,7 @@ public:
 	void generateTerrain_flat();
 	void generateTerrain_sphere();
 	virtual void drawTerrain(int drawmode) = 0;
+	void setTexture(int width, std::string filepath);
 
 	void setColour();
 
