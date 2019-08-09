@@ -51,9 +51,62 @@ void DEM_terrain::createObject()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void DEM_terrain::generateTerrain()
+bool DEM_terrain::load_DEM()
 {
+	if (dem_data != nullptr) return false;
+
+	dem_data = new float[numvertices];
+
+	//Open file
+	if (!openFile())
+	{
+		std::cout << "Could not open DEM file at " << '\'' << filepath << "'. \n";
+		return false;
+	}
+
+	//read DEM file to dem_data
+	char* buffer = new char[4];
+	char* value = new char[4];
+
+	int counter = 0;
+	for (GLuint x = 0; x < X_res; x++)
+	{
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			//Decode binary integers
+			DEMfile.read(buffer, sizeof(value));
+			value[0] = buffer[3];
+			value[1] = buffer[2];
+			value[2] = buffer[1];
+			value[3] = buffer[0];
+			dem_data[counter] = *(float*)value;
+			counter++;
+		}
+	}
+
+	//Clean up
+	delete buffer;
+	delete value;
+	DEMfile.close();
+
+	return true;
+}
+
+
+void DEM_terrain::generateTerrain_flat()
+{
+	//Check if dem_data is pointing to data;
+	if (dem_data == nullptr)
+	{
+		std::cout << "DEM data has not been loaded... \n";
+		return;
+	}
+
 	//Arrays for vertex information
+	if (vertices) delete vertices;
+	if (normals) delete normals;
+	if (colours) delete colours;
+
 	vertices = new glm::vec4[numvertices];
 	normals = new glm::vec3[numvertices];
 	colours = new glm::vec4[numvertices];
@@ -64,61 +117,155 @@ void DEM_terrain::generateTerrain()
 	GLfloat zpos_start = -Z_size / 2.f;
 	GLfloat zstep = Z_size / Z_res;
 
-	//Open file
-	if (!openFile())
+	int counter = 0;
+	//Vertex positions for flat surface
+	for (GLuint x = 0; x < X_res; x++)
 	{
-		std::cout << "Could not open DEM file at " << '\'' << filepath << "'. \n";
-		return;
+		GLfloat zpos = zpos_start;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			//Add to buffer
+			vertices[x * X_res + z] = glm::vec4(xpos, dem_data[counter], zpos, 1);
+			normals[x * X_res + z] = glm::vec3(0, 0, 0);
+			colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
+			zpos += zstep;
+			counter++;
+		}
+		xpos += xstep;
 	}
-	else
+
+	/* Define vertices for triangle strips */
+	for (GLuint x = 0; x < X_res - 1; x++)
 	{
-		char* buffer = new char[4];
-		char* value = new char[4];
-		GLfloat height;
-		//Vertex positions for flat surface
-		for (GLuint x = 0; x < X_res; x++)
+		GLuint top = x * Z_res;
+		GLuint bottom = top + Z_res;
+		for (GLuint z = 0; z < Z_res; z++)
 		{
-			GLfloat zpos = zpos_start;
-			for (GLuint z = 0; z < Z_res; z++)
-			{
-				//Decode binary integers
-				DEMfile.read(buffer, sizeof(value));
-				value[0] = buffer[3];
-				value[1] = buffer[2];
-				value[2] = buffer[1];
-				value[3] = buffer[0];
-				height = *(float*)value;
-
-				//Add to buffer
-				vertices[x * X_res + z] = glm::vec4(xpos, height, zpos, 1);
-				normals[x * X_res + z] = glm::vec3(0, 0, 0);
-				colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
-				zpos += zstep;
-			}
-			xpos += xstep;
+			elements.push_back(top++);
+			elements.push_back(bottom++);
 		}
-		delete buffer;
-		delete value;
-		DEMfile.close(); //close file stream
-
-		/* Define vertices for triangle strips */
-		for (GLuint x = 0; x < X_res - 1; x++)
-		{
-			GLuint top = x * Z_res;
-			GLuint bottom = top + Z_res;
-			for (GLuint z = 0; z < Z_res; z++)
-			{
-				elements.push_back(top++);
-				elements.push_back(bottom++);
-			}
-		}
-
-		// Calculate the normals by averaging cross products for all triangles 
-		calculateNormals();
-
-		return;
 	}
+
+	// Calculate the normals by averaging cross products for all triangles 
+	calculateNormals();
+
+	return;
 }
+
+/*
+Must call generateTerrain_flat() first as it uses the extracted DEM data which is stored in vertices.
+
+Testing with equirectangular projection
+*/
+void DEM_terrain::generateTerrain_sphere()
+{
+	//Check if dem_data is pointing to data;
+	if (dem_data == nullptr)
+	{
+		std::cout << "DEM data has not been loaded... \n";
+		return;
+	}
+
+	if (vertices) delete vertices;
+	if (normals) delete normals;
+	if (colours) delete colours;
+
+	vertices = new glm::vec4[numvertices];
+	normals = new glm::vec3[numvertices];
+	colours = new glm::vec4[numvertices];
+
+	GLfloat radius = 1; //Will change this in the future to be a function parameter I think, still need to think controls through better
+	GLfloat lat_range = glm::radians(360.0f);
+
+	//Starting position and step size
+	GLfloat xpos = -X_size / 2.f;
+	GLfloat xstep = X_size / X_res;
+	GLfloat zpos_start = -Z_size / 2.f;
+	GLfloat zstep = Z_size / Z_res;
+
+	int counter = 0;
+	//Vertex positions for flat surface
+	for (GLuint x = 0; x < X_res; x++)
+	{
+		GLfloat zpos = zpos_start;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			//Add to buffer
+			glm::vec4 current_vert = glm::vec4(xpos, dem_data[counter], zpos, 1); //current vert if it was a flat projection
+			normals[x * X_res + z] = glm::vec3(0, 0, 0);
+			colours[x * X_res + z] = glm::vec4(0.55, 0.55, 0.55, 1);
+
+			//Projection code
+			float longitude;
+			float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
+			if (temp_longitude < 0)
+				longitude = lat_range + temp_longitude;
+			else
+				longitude = temp_longitude;
+
+			float latitude = -((current_vert[2] / (Z_size / (lat_range / 2))) - (lat_range / 4));
+			float R = X_size / (2 * 3.14159265359) + current_vert[1];
+			int x = 0;
+
+			glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
+
+			vertices[counter] = new_coord;
+			zpos += zstep;
+			counter++;
+		}
+		xpos += xstep;
+	}
+
+	/*
+	for (int i = 0; i < numvertices; i++)
+	{
+		//CAN'T REMEMBER WHAT THIS FOR
+		//float longitude = (vertices[i][0] / (X_size / lat_range)) / radius;
+		//float latitude = 2 * atan(exp((vertices[i][2]/(Z_size / lat_range)) / radius) - (3.14159265 / 2));
+		//float R = (vertices[i][1]/(X_size / lat_range)) + radius;
+		
+
+		if (i % 50 == 0)
+			int breakpoint1 = 0;
+
+		glm::vec4 current_vert = vertices[i];
+
+		float longitude;
+		float temp_longitude = (current_vert[0] / (X_size / lat_range)) / radius;
+		if (temp_longitude < 0)
+			longitude = lat_range + temp_longitude;
+		else
+			longitude = temp_longitude;
+
+		float latitude = -((current_vert[2] / (Z_size / (lat_range/2))) - (lat_range / 4));
+		float R = X_size / (2 * 3.14159265359) + current_vert[1];
+		int x = 0;
+
+		glm::vec4 new_coord = glm::vec4(R*sin(latitude)*cos(longitude), R*sin(latitude)*sin(longitude), R*cos(latitude), 1);
+
+		vertices[i] = new_coord;
+		normals[i] = glm::vec3(0, 0, 0);
+	}
+	*/
+
+	/* Define vertices for triangle strips */
+	for (GLuint x = 0; x < X_res - 1; x++)
+	{
+		GLuint top = x * Z_res;
+		GLuint bottom = top + Z_res;
+		for (GLuint z = 0; z < Z_res; z++)
+		{
+			elements.push_back(top++);
+			elements.push_back(bottom++);
+		}
+	}
+
+	// Calculate the normals by averaging cross products for all triangles 
+	calculateNormals();
+
+	return;
+}
+
 
 void DEM_terrain::drawTerrain(int drawmode)
 {

@@ -1,0 +1,18 @@
+identifier                PANGU: DEM Metadata
+base_surface_type         pangu
+surface_file_name         lunar_16.dem
+magnitude                 9
+size                      5760 2880
+height_resolution         1
+horizontal_resolution     1895.21
+fractal_number            0.8
+height_range              0
+projection_type           cylindrical
+dem_centre                0 0
+pixel_type                area
+reference_frame           none
+projection_centre         0 180
+equatorial_radius         1.7374e+006
+polar_radius              1.7374e+006
+sample_projection_offset  0
+line_projection_offset    -0

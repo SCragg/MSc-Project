@@ -136,6 +136,8 @@
     <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp" />
     <ClCompile Include="DEM_terrain.cpp" />
+    <ClCompile Include="flat_terrain.cpp" />
+    <ClCompile Include="sphere_terrain.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="thermal_texture1D.cpp" />
@@ -160,6 +162,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\common\include\gui.h" />
     <ClInclude Include="DEM_terrain.h" />
+    <ClInclude Include="flat_terrain.h" />
+    <ClInclude Include="sphere_terrain.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

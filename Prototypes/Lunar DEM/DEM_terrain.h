@@ -12,19 +12,21 @@
 
 class DEM_terrain
 {
-
 public:
 
 	DEM_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSize, GLfloat ZSize);
 	~DEM_terrain();
 
-	void createObject();
-	void generateTerrain();
-	void drawTerrain(int drawmode);
-	void setTexture(int width, std::string filepath);
+	virtual void createObject() = 0;
+	bool load_DEM();
+	virtual void generate_terrain() = 0;
+	void generateTerrain_flat();
+	void generateTerrain_sphere();
+	virtual void drawTerrain(int drawmode) = 0;
+
 	void setColour();
 
-private:
+protected:
 
 	//Dimensions
 	GLuint X_res, Z_res;
@@ -33,12 +35,13 @@ private:
 	//DEM file
 	std::string filepath;
 	std::ifstream DEMfile;
+	float* dem_data;
 
 	//Vertex Data
 	GLuint numvertices;
-	glm::vec4* vertices;
-	glm::vec3* normals;
-	glm::vec4* colours;
+	glm::vec4* vertices = nullptr;
+	glm::vec3* normals = nullptr;
+	glm::vec4* colours = nullptr;
 	std::vector<GLuint> elements;
 
 	//Vertex Buffer Indices
@@ -56,5 +59,5 @@ private:
 
 	//Functions
 	bool openFile();
-	void calculateNormals();
+	virtual void calculateNormals() = 0;
 };

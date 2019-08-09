@@ -30,6 +30,10 @@
     <ClCompile Include="..\..\common\src\cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="flat_terrain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere_terrain.cpp">
     <ClCompile Include="thermal_texture1D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -106,6 +110,10 @@
     <ClInclude Include="DEM_terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="flat_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere_terrain.h">
     <ClInclude Include="..\..\common\include\gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
