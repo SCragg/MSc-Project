@@ -51,7 +51,7 @@ void main()
 	float temp = texture(thermaltexture, local_time).r;
 
 	//Output colour
-	outputColor= Colour_False(temp, 70, 420); 
+	outputColor= Colour_False(temp, 50, 420); 
 
 	/*
 		Debug code - comment out the output colour on the line above and enable following lines to debug
