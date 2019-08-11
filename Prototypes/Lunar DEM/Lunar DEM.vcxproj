@@ -158,6 +158,8 @@
     <None Include="..\..\shaders\Thermal_2.vert" />
     <None Include="..\..\shaders\Thermal_Texture.frag" />
     <None Include="..\..\shaders\Thermal_Texture.vert" />
+    <None Include="..\..\shaders\Thermal_Texture_Sphere.frag" />
+    <None Include="..\..\shaders\Thermal_Texture_Sphere.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\include\gui.h" />

@@ -145,7 +145,7 @@ void init(GLWrapper *glw)
 
 	try
 	{
-		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_Texture.frag"));
+		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_Texture_Sphere.vert", "..\\..\\shaders\\Thermal_Texture_Sphere.frag"));
 	}
 	catch (exception &e)
 	{

@@ -1,121 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="..\..\common\src\cube.cpp" />
+    <ClCompile Include="..\..\common\src\shader.cpp" />
+    <ClCompile Include="..\..\common\src\wrapper_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp" />
+    <ClCompile Include="DEM_terrain.cpp" />
+    <ClCompile Include="flat_terrain.cpp" />
+    <ClCompile Include="sphere_terrain.cpp" />
+    <ClCompile Include="gui.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="thermal_texture1D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\common\src\shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\common\src\wrapper_glfw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DEM_terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\common\src\cube.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="flat_terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sphere_terrain.cpp">
-    <ClCompile Include="thermal_texture1D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_impl_glfw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_impl_opengl3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\ImGUI\imgui_widgets.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gui.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="..\..\common\include\gui.h" />
+    <ClInclude Include="DEM_terrain.h" />
+    <ClInclude Include="flat_terrain.h" />
+    <ClInclude Include="sphere_terrain.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\shaders\Proto1.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Proto1.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Basic.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Basic.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Hapke.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Hapke.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\show_normals.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\show_normals.geom">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\show_normals.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_1.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_1.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_2.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_2.vert">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_Texture.frag">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="..\..\shaders\Thermal_Texture.vert">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DEM_terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="flat_terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sphere_terrain.h">
-    <ClInclude Include="..\..\common\include\gui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="..\..\shaders\Basic.frag" />
+    <None Include="..\..\shaders\Basic.vert" />
+    <None Include="..\..\shaders\Hapke.frag" />
+    <None Include="..\..\shaders\Hapke.vert" />
+    <None Include="..\..\shaders\Proto1.frag" />
+    <None Include="..\..\shaders\Proto1.vert" />
+    <None Include="..\..\shaders\show_normals.frag" />
+    <None Include="..\..\shaders\show_normals.geom" />
+    <None Include="..\..\shaders\show_normals.vert" />
+    <None Include="..\..\shaders\Thermal_1.frag" />
+    <None Include="..\..\shaders\Thermal_1.vert" />
+    <None Include="..\..\shaders\Thermal_2.frag" />
+    <None Include="..\..\shaders\Thermal_2.vert" />
+    <None Include="..\..\shaders\Thermal_Texture.frag" />
+    <None Include="..\..\shaders\Thermal_Texture.vert" />
+    <None Include="..\..\shaders\Thermal_Texture_Sphere.frag" />
+    <None Include="..\..\shaders\Thermal_Texture_Sphere.vert" />
   </ItemGroup>
 </Project>
