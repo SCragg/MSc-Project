@@ -1,10 +1,13 @@
 ﻿#version 420
 #define PI 3.141592653589793
+#define RADIANS30 0.523599
+#define RADIANS60 1.0472
 
 //inputs
 in vec3 fNormal;
 in vec3 fLightDir;
 in float flocal_time;
+in float latitude;
 
 //Uniforms
 uniform float global_time;
@@ -15,6 +18,7 @@ out vec4 outputColor;
 //Function declarations
 vec4 Colour_Greyscale(float temp, float min_val, float max_val);
 vec4 Colour_False(float temp, float min_val, float max_val);
+float Latitude_TempCorr(float lat, vec3 temps);
 
 //normalize input vectors
 vec3 normal = normalize(fNormal);
@@ -58,10 +62,10 @@ void main()
 	*/
 
 	//Get temp from texture
-	float temp = texture(thermaltexture, local_time).r;
+	vec3 tempvec3 = texture(thermaltexture, local_time).rgb;
 
 	//Output colour
-	outputColor= Colour_False(temp, 80, 440); 
+	outputColor= Colour_False(Latitude_TempCorr(latitude, tempvec3), 70, 440); 
 
 	/*
 		Debug code - comment out the output colour on the line above and enable following lines to debug
@@ -79,6 +83,12 @@ void main()
 
 	//check azimuth
 	//outputColor = vec4(azimuth/6.28318530718, azimuth/6.28318530718, azimuth/6.28318530718, 1);
+
+	//check latitude
+	//if (latitude < 0) outputColor = vec4(1, 0, 0, 1);
+	//else if (latitude > 1.57079632679) outputColor = vec4(0, 1, 0, 1);
+	//else outputColor = vec4(latitude/1.57079632679, latitude/1.57079632679, latitude/1.57079632679, 1);
+
 	
 }
 
@@ -117,4 +127,12 @@ vec4 Colour_False(float temp, float min_val, float max_val)
 	else B = 0;
 
 	return vec4(R,G,B,1);
+}
+
+float Latitude_TempCorr(float lat, vec3 temps)
+{
+	if (lat > RADIANS60) return temps.b;
+	else if (lat > RADIANS30) return mix(temps.g, temps.b, (lat - RADIANS30)/RADIANS30);
+	else if (lat > 0) return mix(temps.r, temps.g, lat/RADIANS30);
+	else return temps.r;
 }
