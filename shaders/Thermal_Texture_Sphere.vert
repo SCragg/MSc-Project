@@ -34,16 +34,31 @@ Outputs to fragment shader - colour, normal, light direction
 */
 out vec3 fNormal;
 out vec3 fLightDir;
+out vec3 fposition;
 out float flocal_time;
 out float latitude;
+out float time;
 
 //Main
 void main()
 {
+	//longitude calc
+	vec2 long_vec = vec2(position.x, position.y);
+	float longitude = atan(long_vec.x, long_vec.y)/6.28318530718;
+	time = global_time + longitude;
+	if (time < 0)
+		time += 1;
+	else if (time > 1)
+		time -= 1;
+	
+
 	//Transform normal and light direction and send to frag shader
 	fNormal = normalize(normal);
 	fLightDir = normalize(normalmatrix * lightdir.xyz);
 	latitude = acos(dot(normalize(position.xyz), normalize(vec3(position.x, position.y, 0))));
+	//if (dot(normalize(position.xyz), vec3(0,0,-1)) < 0)
+		//latitude = latitude -1;
+	fposition = position.xyz;
 
 	//Output vertex position
 	gl_Position = projection * view * model * position;

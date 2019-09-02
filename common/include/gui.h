@@ -32,10 +32,18 @@ to draw GUI place render function in the draw loop
 class GUI
 {
 private:
-	float time = 0;
+	float time = 0.75;
+	bool auto_time = false;
+	float auto_speed = 0;
+
+	const std::vector<Shader>& Shaders;
 	int numofshaders;
 	int currentshader = 0;
-	const std::vector<Shader>& Shaders;
+
+	int colourmode = 0;
+	const int NUM_OF_COLOURMODES = 3;
+
+
 
 	void nextshader();
 
@@ -50,6 +58,7 @@ public:
 
 	void set_time(float t) { time = t; }
 	const float& get_time() { return time; }
+	const int& get_colourmode() { return colourmode; }
 
 	const int& get_currentshader() { return currentshader; }
 };

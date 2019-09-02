@@ -41,5 +41,6 @@
     <None Include="..\..\shaders\Thermal_Texture.vert" />
     <None Include="..\..\shaders\Thermal_Texture_Sphere.frag" />
     <None Include="..\..\shaders\Thermal_Texture_Sphere.vert" />
+    <None Include="..\..\shaders\Lambert.frag" />
   </ItemGroup>
 </Project>

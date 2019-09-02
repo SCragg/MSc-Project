@@ -147,6 +147,7 @@
     <None Include="..\..\shaders\Basic.vert" />
     <None Include="..\..\shaders\Hapke.frag" />
     <None Include="..\..\shaders\Hapke.vert" />
+    <None Include="..\..\shaders\Lambert.frag" />
     <None Include="..\..\shaders\Proto1.frag" />
     <None Include="..\..\shaders\Proto1.vert" />
     <None Include="..\..\shaders\show_normals.frag" />
