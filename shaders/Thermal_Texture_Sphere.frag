@@ -84,7 +84,7 @@ void main()
 
 	//Output colour
 	if (colourmode == 0)
-		outputColor= Colour_Greyscale(Latitude_TempCorr(lat, tempvec3), 70, 440); 
+		outputColor= Colour_Greyscale(Latitude_TempCorr(lat, tempvec3), 81.62370444, 390.4609914); 
 	else if (colourmode == 1)
 		outputColor= Colour_Rainbow(Latitude_TempCorr(lat, tempvec3), 0, 450); 
 	else if (colourmode == 2)

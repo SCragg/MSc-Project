@@ -27,7 +27,7 @@ float g = acos(clamp(dot(L, V), -1.0, 1.0)); //phase angle
 float absg = abs(g);
 
 //Hapke parameters
-const float w = 0.4; //from pangu video
+const float w = 5; //from pangu video
 const float Bo = 1; //estimate from paper
 float h = 0.4; //from paper looks like a guesstimate
 float e = acos(U);
@@ -49,7 +49,7 @@ void main()
 		//third part: {[i + B(g)]P(g) + H(Uo)H(u) -1)
 		float third = (1 + Hapke_B(absg, h)) * pg + Hapke_H(Uo, w) * Hapke_H(U, w) - 1;
 
-		Hapke = first * second * third * 4;
+		Hapke = first * second * third;
 	}
 
 	//Outputs

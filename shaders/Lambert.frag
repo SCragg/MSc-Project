@@ -45,7 +45,7 @@ vec4 Colour_Rainbow(float temp, float min_val, float max_val)
 
 void main()
 {
-	outputColor = fcolour * max(0.0, dot(N, L));
+	outputColor = vec4(1,1,1,1) * max(0.0, dot(N, L));
 
 }
 
