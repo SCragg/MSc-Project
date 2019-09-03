@@ -86,12 +86,12 @@ void init(GLWrapper *glw)
 {
 	/* Set the view transformation controls to their initial values*/
 	angle_y = 0;
-	angle_z = 90;
+	angle_z = 0;
 	angle_x = -90;
 	angle_inc_x = angle_inc_y = angle_inc_z = 0;
 	move_x = 0;
 	move_y = 0; //-10
-	move_z = 0; //-50
+	move_z = -10; //-50
 
 	model_scale = .000002f; //.002 for flat terrain
 
