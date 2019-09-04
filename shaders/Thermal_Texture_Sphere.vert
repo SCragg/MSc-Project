@@ -56,8 +56,8 @@ void main()
 	fNormal = normalize(normal);
 	fLightDir = normalize(normalmatrix * lightdir.xyz);
 	latitude = acos(dot(normalize(position.xyz), normalize(vec3(position.x, position.y, 0))));
-	//if (dot(normalize(position.xyz), vec3(0,0,-1)) < 0)
-		//latitude = latitude -1;
+	if (dot(normalize(position.xyz), vec3(0,0,1)) < 0)
+		latitude = latitude * -1;
 	fposition = position.xyz;
 
 	//Output vertex position
