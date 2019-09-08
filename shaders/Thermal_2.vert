@@ -1,5 +1,7 @@
 ﻿/*
-Thermal_1.vert
+Thermal_2.vert - Sean Cragg
+
+****Same as Thermal_1 but calculation performed in frag shader****
 
 Prototype for thermal rendering, this will be for the current loaded model which is 512x512
 model projected on to a plane.

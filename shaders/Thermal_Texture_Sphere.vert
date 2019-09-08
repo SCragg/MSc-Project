@@ -1,6 +1,9 @@
 ﻿/*
-Thermal_Texture.vert
+
+Thermal_Texture_Sphere.vert - Sean Cragg
+
 */
+
 #version 420
 #define PI 3.141592653589793
 

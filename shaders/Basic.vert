@@ -1,6 +1,3 @@
-// Starter vertex shader for lab3
-// THe goal is to update this shader to implement Gourand shading
-// which is per-vertex lighting
 
 #version 420
 

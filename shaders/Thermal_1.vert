@@ -1,5 +1,5 @@
 ﻿/*
-Thermal_1.vert
+Thermal_1.vert - Sean Cragg
 
 Prototype for thermal rendering, this will be for the current loaded model which is 512x512
 model projected on to a plane.

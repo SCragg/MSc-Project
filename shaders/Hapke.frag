@@ -1,5 +1,8 @@
-// Fragment shader
-//Started off from the lab3 shader and moved lighting from vertex to frag as shown in the lab
+/*
+	Hapke.frag - Sean Cragg
+
+	Hapke BRDF calcultaions in here
+*/
 
 #version 420
 
@@ -27,9 +30,9 @@ float g = acos(clamp(dot(L, V), -1.0, 1.0)); //phase angle
 float absg = abs(g);
 
 //Hapke parameters
-const float w = 5; //from pangu video
-const float Bo = 1; //estimate from paper
-float h = 0.4; //from paper looks like a guesstimate
+const float w = 5;
+const float Bo = 1;
+float h = 0.4;
 float e = acos(U);
 
 void main()
@@ -67,6 +70,7 @@ float Hapke_H(float u, float w)
 //Backscatter function
 float Hapke_B (float absg, float h)
 {
+//Weird inbetween period when enabled
 //if (absg < 1)
 	//return Bo * (1 - 3 * absg / 2 * h);
 

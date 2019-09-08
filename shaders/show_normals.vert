@@ -1,5 +1,8 @@
-// Veretx shader to use to draw object showing vertex normals
-// as lines drawn
+/* 
+	show_normals.vert - Sean Cragg
+	Veretx shader to use to draw object showing vertex normals
+
+*/
 
 #version 400
 

@@ -1,4 +1,9 @@
-﻿#version 420
+﻿/*
+
+Thermal_Texture.frag - Sean Cragg
+
+*/
+#version 420
 #define PI 3.141592653589793
 
 //inputs

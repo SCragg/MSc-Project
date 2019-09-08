@@ -10,6 +10,9 @@ Static functions used for initialisation and clean up of all GUI objects.
 Render function used to draw gui, all required code should be placed in the render function,
 to draw GUI place render function in the draw loop
 
+TO DO:
+	Actually implement this as a singleton and not assume another instance won't be called as it is just now...
+
 */
 
 #pragma once

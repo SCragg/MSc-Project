@@ -1,5 +1,6 @@
-// Geometry shader to draw normals
-// as lines drawn
+/* 
+	show_normals.geom - Sean Cragg
+*/
 
 #version 400 core
 

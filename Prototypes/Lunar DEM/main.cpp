@@ -68,7 +68,7 @@ GLuint therm1_globaltimeID, therm1_colourmodeID;
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
 vector<Shader> terrainShaders;
-DEM_terrain *LunarTerrain, *LunarTerrainFlat;
+DEM_terrain *LunarTerrain;
 Cube aCube;
 
 //Flags
@@ -110,12 +110,7 @@ void init(GLWrapper *glw)
 	LunarTerrain->load_DEM();
 	LunarTerrain->generate_terrain();
 	LunarTerrain->createObject();
-	LunarTerrain->setTexture(2000, "..\\..\\Textures\\Thermal Profile 2.txt");
-
-	LunarTerrainFlat = new Flat_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
-	LunarTerrainFlat->load_DEM();
-	LunarTerrainFlat->generate_terrain();
-	LunarTerrainFlat->createObject();
+	LunarTerrain->setTexture(2001, "..\\..\\Textures\\Thermal Profile 2.txt");
 
 	//Create cube
 	aCube.makeCube();
@@ -294,18 +289,14 @@ void display(GUI* gui)
 		terrainShaders[gui->get_currentshader()].use();
 		if (gui->get_currentshader() == 2)
 		{
-			//If thermal shader send uniforms:
-			glUniform1f(therm1_albedoID, 0.08); //Albedo of 0.08
-			glUniform1f(therm1_emissID, 0.95); //Emissivity of 0.95
-			glUniform1f(therm1_solarID, 1370); //Solar Constant 1370
-			/*
-				$"��$"%%� MOVE AROUND FOR FINAL BUILD AND REMOVE PREVIOUS UNIFORMS �$%"�$%"�$%
-				 testing only, solar constant etc only needed for original prototype
-			*/
+			//If initial thermal prototype send these
+			//glUniform1f(therm1_albedoID, 0.08); //Albedo of 0.08
+			//glUniform1f(therm1_emissID, 0.95); //Emissivity of 0.95
+			//glUniform1f(therm1_solarID, 1370); //Solar Constant 1370
+
+			//send time and colourmode to shader
 			glUniform1f(therm1_globaltimeID, gui->get_time());
 			glUniform1i(therm1_colourmodeID, gui->get_colourmode());
-
-
 		}
 		LunarTerrain->drawTerrain(drawmode);
 
@@ -389,21 +380,6 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == GLFW_KEY_RIGHT_SHIFT) move_z -= 1.0;
 	if (key == GLFW_KEY_RIGHT_CONTROL) move_z += 1.0;
 
-	//Change hour angle
-	if (key == 'O')
-	{
-		if (HourAngle < 359) HourAngle++;
-		else HourAngle = 0;
-		cout << "Hour angle: " << HourAngle << " degrees. \n";
-	}
-
-	if (key == 'P')
-	{
-		if (HourAngle > 0) HourAngle--;
-		else HourAngle = 359;
-		cout << "Hour angle: " << HourAngle << " degrees. \n";
-	}
-
 	//Shows/hides normal
 	if (key == 'V' && action == GLFW_PRESS)
 	{
@@ -416,13 +392,6 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	{
 		if (drawmode < 2) drawmode++;
 		else drawmode = 0;
-	}
-
-	//Change shader
-	if (key == 'C' && action == GLFW_PRESS)
-	{
-		if (currentterrainshader < terrainShaders.size() - 1) currentterrainshader ++;
-		else  currentterrainshader = 0;
 	}
 }
 

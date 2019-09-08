@@ -1,4 +1,10 @@
-﻿#version 420
+﻿/*
+
+Thermal_Texture_Sphere.frag - Sean Cragg
+
+*/
+
+#version 420
 #define PI 3.141592653589793
 #define RADIANS30 0.523599
 #define RADIANS60 1.0472

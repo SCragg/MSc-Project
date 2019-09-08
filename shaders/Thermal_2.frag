@@ -1,4 +1,11 @@
-﻿#version 420
+﻿/*
+Thermal_2.vert - Sean Cragg
+
+****Same as Thermal_1 but calculation performed in frag shader****
+
+*/
+
+#version 420
 
 //Stefan-Boltzman constant for calculating blackbody radiation: σ = 5.670374419...×10−8 W⋅m^−2⋅K^−4
 #define STEFAN_BOLTZMAN 0.00000005670374419

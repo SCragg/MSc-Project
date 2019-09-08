@@ -143,8 +143,6 @@
     <ClCompile Include="thermal_texture1D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\shaders\Basic.frag" />
-    <None Include="..\..\shaders\Basic.vert" />
     <None Include="..\..\shaders\Hapke.frag" />
     <None Include="..\..\shaders\Hapke.vert" />
     <None Include="..\..\shaders\Lambert.frag" />

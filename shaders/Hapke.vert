@@ -1,6 +1,8 @@
-// Starter vertex shader for lab3
-// THe goal is to update this shader to implement Gourand shading
-// which is per-vertex lighting
+/*
+	Hapke.vert - Sean Cragg
+
+	vertex shader for hapke lighting
+*/
 
 #version 420
 

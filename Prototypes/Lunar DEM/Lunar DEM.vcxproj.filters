@@ -24,8 +24,6 @@
     <ClInclude Include="sphere_terrain.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\shaders\Basic.frag" />
-    <None Include="..\..\shaders\Basic.vert" />
     <None Include="..\..\shaders\Hapke.frag" />
     <None Include="..\..\shaders\Hapke.vert" />
     <None Include="..\..\shaders\Proto1.frag" />

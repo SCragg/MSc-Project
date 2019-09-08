@@ -1,3 +1,18 @@
+/*
+	sphere_terrain.h - Sean Cragg
+
+	Derived class of DEM_terrain.
+	
+	Use to generate spherical model from DEM.
+	Uses reverse cylindrical projection to generate spherical model
+
+	KNOWN ISSUES:
+	There is a missing triangle strip causing a seam in the model, add element array indices and fix draw call
+	tried in the past but couldn't get it to work.
+
+	top and bottom vertices need fixed, but at high resolution unnoticeable
+*/
+
 #pragma once
 
 #include"DEM_terrain.h"

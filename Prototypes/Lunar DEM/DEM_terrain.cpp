@@ -1,3 +1,7 @@
+/*
+	DEM_terrain.cpp - Sean Cragg
+*/
+
 #include "DEM_terrain.h"
 
 DEM_terrain::DEM_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSize, GLfloat ZSize)
@@ -17,7 +21,11 @@ DEM_terrain::DEM_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSi
 
 DEM_terrain::~DEM_terrain()
 {
-	//Insert clean up in here...
+	if (dem_data) delete[] dem_data;
+	if (vertices) delete[] vertices;
+	if (normals) delete[] normals;
+	if (colours) delete[] colours;
+	if (texture) delete texture;
 }
 
 

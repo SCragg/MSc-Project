@@ -1,3 +1,9 @@
+/*
+	DEM_terrain.h - Sean Cragg
+
+	Base class for terrain objects that use DEM data
+*/
+
 #pragma once
 
 #define GLM_SWIZZLE

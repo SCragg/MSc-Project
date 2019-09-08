@@ -1,4 +1,8 @@
+/*
 
+thermal_texture1D.cpp - Sean Cragg
+
+*/
 #include "thermal_texture1D.h"
 
 //Constructor

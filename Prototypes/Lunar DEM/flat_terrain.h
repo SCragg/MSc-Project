@@ -1,3 +1,11 @@
+/*
+	flat_terrain.h - Sean Cragg
+
+	Derived class of DEM_terrain.
+
+	generates flat terrain from DEM file
+*/
+
 #pragma once
 
 #include"DEM_terrain.h"

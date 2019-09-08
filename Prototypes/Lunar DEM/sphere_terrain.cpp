@@ -1,3 +1,6 @@
+/*
+	sphere_terrain.cpp - Sean Cragg
+*/
 #include "sphere_terrain.h"
 
 Sphere_terrain::Sphere_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSize, GLfloat ZSize)

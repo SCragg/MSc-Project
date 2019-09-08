@@ -1,3 +1,6 @@
+/*
+	gui.cpp - Sean Cragg
+*/
 #include "gui.h"
 
 void GUI::Initialise(GLFWwindow* window)

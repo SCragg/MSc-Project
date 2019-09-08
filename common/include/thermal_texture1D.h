@@ -3,7 +3,7 @@ thermal_texture1D.h - Sean Cragg
 
 Class for 1d thermal textures, has functions to load texture from tab delimited file.
 
-Must know a priori number of data points in texture file and filepath.
+Must know a priori number of data points in texture file and filepath when creating object.
 */
 
 #include <string>

@@ -1,3 +1,9 @@
+/*
+
+flat_terrain.cpp - Sean Cragg
+
+*/
+
 #include "flat_terrain.h"
 
 Flat_terrain::Flat_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSize, GLfloat ZSize)

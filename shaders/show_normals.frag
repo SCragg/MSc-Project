@@ -1,5 +1,7 @@
-// Fragment shader to draw normals
-// as lines drawn
+/* 
+	show_normals.frag - Sean Cragg
+
+*/
 
 #version 400 core
 
