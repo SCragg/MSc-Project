@@ -62,7 +62,7 @@ void main()
 	float local_time = time + (0.5 / PI) * atan(local_slope * sin(azimuth));
 	float lat = Latitude_Correction(latitude, azimuth, local_slope);
 
-
+	//Used to clamp time to 0 - 1, not required as texture wraps around but may be useful in the future.
 	/*
 	vec3 forward_vec = vec3(0, 1, 0);
 	vec3 right_vec = vec3(1, 0, 0);

@@ -4,6 +4,16 @@ Flat_terrain::Flat_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat X
 	: DEM_terrain(XRes, ZRes, file, XSize, ZSize)
 {}
 
+Flat_terrain::~Flat_terrain()
+{
+	if (dem_data) delete[] dem_data;
+	if (vertices) delete[] vertices;
+	if (normals) delete[] normals;
+	if (colours) delete[] colours;
+	if (texture) delete texture;
+}
+
+
 void Flat_terrain::createObject()
 {
 	glGenVertexArrays(1, &vao);

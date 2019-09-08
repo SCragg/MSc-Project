@@ -16,12 +16,10 @@ class Thermal_Texture1D
 
 public:
 	Thermal_Texture1D(unsigned int w, std::string path);
-	//~Thermal_Texture1D(); //Need to define destructor later
+	~Thermal_Texture1D();
 	unsigned int & ID() { return tex_ID; }
 	void Read_data();
 	void Generate_texture();
-	void Set_width(unsigned int sample);
-	void Set_filepath(std::string path);
 
 private:
 	unsigned int tex_ID; //texture ID

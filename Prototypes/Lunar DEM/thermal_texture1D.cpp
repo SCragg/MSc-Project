@@ -5,6 +5,13 @@
 Thermal_Texture1D::Thermal_Texture1D(unsigned int w, std::string path):
 	width(w), filepath(path) {}
 
+//Destructor
+Thermal_Texture1D::~Thermal_Texture1D()
+{
+	if (data) delete[] data;
+	glDeleteTextures(1, &tex_ID);
+}
+
 //Reads texture data from text tab delimited file and stores in to a vector of unsigned floats
 void Thermal_Texture1D::Read_data()
 {

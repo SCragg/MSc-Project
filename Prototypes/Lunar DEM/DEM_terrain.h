@@ -15,13 +15,11 @@ class DEM_terrain
 public:
 
 	DEM_terrain(GLuint XRes, GLuint ZRes, std::string file, GLfloat XSize, GLfloat ZSize);
-	~DEM_terrain();
+	virtual ~DEM_terrain();
 
 	virtual void createObject() = 0;
 	bool load_DEM();
 	virtual void generate_terrain() = 0;
-	void generateTerrain_flat();
-	void generateTerrain_sphere();
 	virtual void drawTerrain(int drawmode) = 0;
 	void setTexture(int width, std::string filepath);
 
