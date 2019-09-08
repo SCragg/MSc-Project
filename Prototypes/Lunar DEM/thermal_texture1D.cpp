@@ -13,7 +13,7 @@ void Thermal_Texture1D::Read_data()
 		delete [] data;
 
 	//create array of size width to store data
-	data = new float[width];
+	data = new float[width*3];
 
 	//create and open file stream
 	std::ifstream inputfile;
@@ -28,7 +28,7 @@ void Thermal_Texture1D::Read_data()
 
 	else
 	{
-		for (int i = 0; i < width; i++)
+		for (int i = 0; i < width * 3; i++)
 		{
 			inputfile >> data[i];
 
@@ -62,7 +62,7 @@ void Thermal_Texture1D::Generate_texture()
 		//Generate/Load Texture
 		if (data)
 		{
-			glTexImage1D(GL_TEXTURE_1D, 0, GL_R32F, width, 0, GL_RED, GL_FLOAT, data);
+			glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB32F, width, 0, GL_RGB, GL_FLOAT, data);
 			glGenerateMipmap(GL_TEXTURE_1D);
 		}
 		else

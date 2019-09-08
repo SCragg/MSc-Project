@@ -63,7 +63,7 @@ const GLint offset_normalmatrix = 192;
 GLuint lightdirID;
 GLuint lamb_lightdirID;
 GLuint therm1_lightdirID, therm1_albedoID, therm1_solarID, therm1_emissID;
-GLuint therm1_globaltimeID;
+GLuint therm1_globaltimeID, therm1_colourmodeID;
 
 /* Global instances of our objects */
 Shader normalShader, cubeShader;
@@ -85,12 +85,13 @@ This function is called before entering the main rendering loop. Initialisations
 void init(GLWrapper *glw)
 {
 	/* Set the view transformation controls to their initial values*/
-	angle_y = angle_z = 0;
+	angle_y = 0;
+	angle_z = 0;
 	angle_x = -90;
 	angle_inc_x = angle_inc_y = angle_inc_z = 0;
 	move_x = 0;
 	move_y = 0; //-10
-	move_z = 0; //-50
+	move_z = -10; //-50
 
 	model_scale = .000002f; //.002 for flat terrain
 
@@ -109,7 +110,7 @@ void init(GLWrapper *glw)
 	LunarTerrain->load_DEM();
 	LunarTerrain->generate_terrain();
 	LunarTerrain->createObject();
-	LunarTerrain->setTexture(2000, "..\\..\\Textures\\Thermal Profile 1.txt");
+	LunarTerrain->setTexture(2000, "..\\..\\Textures\\Thermal Profile 2.txt");
 
 	LunarTerrainFlat = new Flat_terrain(512, 512, "..\\..\\DEMs\\1\\surface_region_0_layer_0.dem", 1024, 1024); //had last two as 1024 for a bit for resolution but possibly need to readjust normal code
 	LunarTerrainFlat->load_DEM();
@@ -145,7 +146,7 @@ void init(GLWrapper *glw)
 
 	try
 	{
-		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_Texture.vert", "..\\..\\shaders\\Thermal_Texture.frag"));
+		terrainShaders.push_back(Shader("Thermal", "..\\..\\shaders\\Thermal_Texture_Sphere.vert", "..\\..\\shaders\\Thermal_Texture_Sphere.frag"));
 	}
 	catch (exception &e)
 	{
@@ -210,6 +211,8 @@ void init(GLWrapper *glw)
 	therm1_emissID = glGetUniformLocation(terrainShaders[2].ID, "emissivity");
 	therm1_albedoID = glGetUniformLocation(terrainShaders[2].ID, "albedo");
 	therm1_globaltimeID = glGetUniformLocation(terrainShaders[2].ID, "global_time");
+	therm1_colourmodeID = glGetUniformLocation(terrainShaders[2].ID, "colourmode");
+
 }
 
 /* Called to update the display. Note that this function is called in the event loop in the wrapper
@@ -227,6 +230,7 @@ void display(GUI* gui)
 
 	// Projection matrix : 30° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units - from lab example
 	mat4 projection = perspective(radians(30.0f), aspect_ratio, 0.1f, 200.0f);
+	//mat4 projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, -50.0f, 100.0f);
 
 	// Camera matrix
 	mat4 view = lookAt(
@@ -299,6 +303,8 @@ void display(GUI* gui)
 				 testing only, solar constant etc only needed for original prototype
 			*/
 			glUniform1f(therm1_globaltimeID, gui->get_time());
+			glUniform1i(therm1_colourmodeID, gui->get_colourmode());
+
 
 		}
 		LunarTerrain->drawTerrain(drawmode);
@@ -372,8 +378,8 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 	if (key == 'T' && action == GLFW_RELEASE) angle_inc_z = 0;
 	if (key == 'Y') angle_inc_z += 0.1f;
 	if (key == 'Y' && action == GLFW_RELEASE) angle_inc_z = 0;
-	if (key == 'A') model_scale -= 0.000002f;
-	if (key == 'S') model_scale += 0.000002f;
+	if (key == 'A') model_scale -= 0.000001f;
+	if (key == 'S') model_scale += 0.000001f;
 
 	//Moves camera along x, y, z axes
 	if (key == GLFW_KEY_UP) move_y -= 1.0;
@@ -425,7 +431,7 @@ static void keyCallback(GLFWwindow* window, int key, int s, int action, int mods
 int main(int argc, char* argv[])
 {
 	GUI *gui = new GUI(terrainShaders);
-	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM", gui);
+	GLWrapper *glw = new GLWrapper(1024, 768, "Lunar DEM", gui); //1024 * 768
 
 	if (!ogl_LoadFunctions())
 	{

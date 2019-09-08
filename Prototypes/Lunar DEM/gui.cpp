@@ -36,6 +36,13 @@ void GUI::Render()
 		ImGui::Begin("Controls");
 
 		ImGui::SliderFloat("Time", &time, 0.0f, 1.0f);
+		ImGui::Checkbox("Auto time", &auto_time);
+		if (auto_time)
+		{
+			ImGui::SliderFloat("Speed", &auto_speed, 0.0f, 0.015f);
+			time += auto_speed;
+			if (time > 1) time -= 1;
+		}
 
 		if (ImGui::Button("Change shader"))
 		{
@@ -44,15 +51,20 @@ void GUI::Render()
 		//Insert code to deal with shader changing
 		ImGui::Text(Shaders[currentshader].GetName().c_str());
 
-		/*
+		
 		//if current shader is thermal include button to change colour type
 
-		if (current_shader == thermal)
+		if (Shaders[currentshader].GetName() == "Thermal")
 		{
-			if (ImGui::Button(colourmode))
-				//switch colourmode
+			if (ImGui::Button("Swap colourmode"))
+			{
+				colourmode++;
+				if (colourmode == NUM_OF_COLOURMODES) colourmode = 0;
+			}
 		}
-		*/
+		
+
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 		ImGui::End();
 
