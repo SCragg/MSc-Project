@@ -4,6 +4,15 @@ Sphere_terrain::Sphere_terrain(GLuint XRes, GLuint ZRes, std::string file, GLflo
 	: DEM_terrain(XRes, ZRes, file, XSize, ZSize)
 {}
 
+Sphere_terrain::~Sphere_terrain()
+{
+	if (dem_data) delete[] dem_data;
+	if (vertices) delete[] vertices;
+	if (normals) delete[] normals;
+	if (colours) delete[] colours;
+	if (texture) delete texture;
+}
+
 void Sphere_terrain::createObject()
 {
 	glGenVertexArrays(1, &vao);
